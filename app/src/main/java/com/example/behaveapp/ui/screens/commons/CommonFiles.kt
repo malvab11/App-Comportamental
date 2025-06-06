@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.behaveapp.R
@@ -51,6 +53,7 @@ fun CommonText(
     fontWeight: FontWeight = FontWeight.Normal,
     fontSize: Int,
     textAlign: TextAlign = TextAlign.Center,
+    lineHeight: TextUnit = TextUnit.Unspecified,
     maxLines: Int = 1
 ) {
     Text(
@@ -58,6 +61,7 @@ fun CommonText(
         color = color,
         fontWeight = fontWeight,
         fontSize = fontSize.sp,
+        lineHeight = lineHeight,
         modifier = modifier,
         textAlign = textAlign,
         maxLines = maxLines,
@@ -70,14 +74,24 @@ fun CommonIcon(
     size: Int,
     icon: Int,
     contentDescription: String,
-    tint: Color
+    tint: Color,
+    onClick: () -> Unit = {}
 ) {
-    Icon(
-        modifier = Modifier.size(size.dp),
-        painter = painterResource(icon),
-        contentDescription = contentDescription,
-        tint = tint
-    )
+    Box(
+        modifier = Modifier
+            .size(size.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            modifier = Modifier
+                .size(size.dp),
+            painter = painterResource(icon),
+            contentDescription = contentDescription,
+            tint = tint
+        )
+    }
+
 }
 
 @Composable
@@ -110,7 +124,7 @@ fun CommonOutlinedButtons(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (icon != 0) {
-                CommonImage(modifier = Modifier.size(30.dp),imagen = icon, contentDescription = "")
+                CommonImage(modifier = Modifier.size(30.dp), imagen = icon, contentDescription = "")
                 CommonSpacer(size = 5)
             }
             CommonText(
@@ -125,7 +139,7 @@ fun CommonOutlinedButtons(
 }
 
 @Composable
-fun CommonCircularProgress(modifier: Modifier) {
+fun CommonCircularProgress(modifier: Modifier = Modifier) {
     CircularProgressIndicator(
         color = Color.White,
         strokeWidth = 5.dp,
@@ -151,7 +165,7 @@ fun LoginTextField(
             CommonText(
                 modifier = Modifier,
                 text = placeholder,
-                fontSize = 12
+                fontSize = 16
             )
         },
         trailingIcon = {
@@ -222,7 +236,7 @@ fun CommonTaskCard(modifier: Modifier = Modifier, done: Boolean, tareas: String,
                         BlackStartBackground
                     }
                 )
-                .padding(20.dp),
+                .padding(horizontal = 20.dp, vertical = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -258,7 +272,9 @@ fun CommonUserCard(
     selected: Boolean,
     tareas: String,
     descripcion: String = "2/10 tareas realizadas",
-    puntaje: Int
+    descripcion2: String = "",
+    puntaje: Int,
+    tipo: Int = 1
 ) {
     Row(
         modifier = modifier
@@ -271,7 +287,6 @@ fun CommonUserCard(
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Card(
@@ -293,26 +308,86 @@ fun CommonUserCard(
                 fontWeight = FontWeight.Bold
             )
             CommonText(
-                text = descripcion,
+                text = descripcion.takeIf { tipo == 1 } ?: descripcion2,
                 fontSize = 16,
                 fontWeight = FontWeight.Normal
             )
         }
-        // Puntos + ícono
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        if (tipo == 1) {
+            // Puntos + ícono
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CommonText(
+                    text = puntaje.toString(),
+                    fontSize = 16,
+                    fontWeight = FontWeight.Bold,
+                    color = DarkOrange
+                )
+                CommonSpacer(size = 10)
+                CommonIcon(
+                    size = 20,
+                    icon = R.drawable.ic_coin,
+                    contentDescription = "Moneda",
+                    tint = DarkOrange
+                )
+            }
+        } else {
+            // Puntos + ícono
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                ) {
+                CommonIcon(
+                    size = 24,
+                    icon = R.drawable.ic_check,
+                    contentDescription = "Aceptar",
+                    tint = DarkOrange
+                )
+                CommonSpacer(size = 5)
+                CommonIcon(
+                    size = 24,
+                    icon = R.drawable.ic_times,
+                    contentDescription = "Eliminar",
+                    tint = DarkOrange
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CommonCard(
+    modifier: Modifier = Modifier,
+    texto: String,
+    icono: Int,
+    contentDescription: String
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Contenedor de tarea + puntos
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(DarkUnselectedItems)
+                .padding(horizontal = 20.dp, vertical = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             CommonText(
-                text = puntaje.toString(),
+                text = texto,
                 fontSize = 16,
-                fontWeight = FontWeight.Bold,
-                color = DarkOrange
+                fontWeight = FontWeight.Bold
             )
-            CommonSpacer(size = 10)
             CommonIcon(
                 size = 20,
-                icon = R.drawable.ic_coin,
-                contentDescription = "Moneda",
-                tint = DarkOrange
+                icon = icono,
+                contentDescription = contentDescription,
+                tint = Color.White
             )
+
         }
     }
 }

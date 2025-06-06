@@ -1,4 +1,4 @@
-package com.example.behaveapp.ui.screens
+package com.example.behaveapp.ui.screens.init.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.behaveapp.R
+import com.example.behaveapp.data.screensNavigation.screensNavigation
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
@@ -28,36 +30,50 @@ import com.example.behaveapp.ui.theme.DarkButtons
 import com.example.behaveapp.ui.theme.DarkOrange
 
 @Composable
-fun LoginTutorScreen(modifier: Modifier = Modifier) {
+fun LoginTutorScreen(modifier: Modifier = Modifier, navController: NavController) {
     Scaffold(
         topBar = { /* Puedes agregar una TopBar aquí */ },
         bottomBar = { /* Puedes agregar una BottomBar aquí */ }
     ) { innerPadding ->
-
         Column(
             modifier = modifier
                 .fillMaxSize()
                 .background(
                     Brush.linearGradient(listOf(BlackStartBackground, BlackEndBackground))
                 )
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding(),
+                    start = 12.dp,
+                    end = 12.dp
+                ),
         ) {
-            CommonIcon(
-                size = 24,
-                icon = R.drawable.ic_arrow_back,
-                contentDescription = "Retroceder",
-                tint = DarkOrange
-            )
-
-            LoginContent()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                CommonIcon(
+                    size = 24,
+                    icon = R.drawable.ic_arrow_back,
+                    contentDescription = "Retroceder",
+                    tint = DarkOrange
+                ) { navController.popBackStack() }
+            }
+            Column(
+                modifier = modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                LoginContent(navController = navController)
+            }
         }
     }
 }
 
 @Composable
-private fun LoginContent() {
+private fun LoginContent(navController: NavController) {
     CommonSpacer(size = 12)
 
     CommonText(
@@ -89,7 +105,11 @@ private fun LoginContent() {
         texto = "Iniciar Sesión",
         containterColor = DarkButtons,
         tamanoTexto = 16
-    ) {}
+    ) {
+        navController.navigate(screensNavigation.LoadingScreen.ruta) {
+            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+        }
+    }
 
     CommonSpacer(size = 12)
     CommonOutlinedButtons(
@@ -97,7 +117,7 @@ private fun LoginContent() {
         texto = "Registrarme",
         containterColor = DarkOrange,
         tamanoTexto = 16
-    ) {}
+    ) { navController.navigate(screensNavigation.RegisterTutorScreen.ruta) }
 
     CommonSpacer(size = 12)
     CommonText(

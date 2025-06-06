@@ -1,4 +1,4 @@
-package com.example.behaveapp.ui.screens
+package com.example.behaveapp.ui.screens.init
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -34,6 +34,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.behaveapp.data.screensNavigation.screensNavigation
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonTaskCard
@@ -47,7 +49,7 @@ import com.example.behaveapp.ui.theme.DarkUnselectedItems
 import kotlinx.coroutines.delay
 
 @Composable
-fun PresentationScreen(modifier: Modifier = Modifier) {
+fun PresentationScreen(modifier: Modifier = Modifier, navController: NavController) {
 
     Scaffold(
         topBar = { /* ... */ },
@@ -64,7 +66,7 @@ fun PresentationScreen(modifier: Modifier = Modifier) {
                 .padding(innerPadding) // Aquí aplicas el padding interno
         ) {
             Carrousel(modifier = Modifier.weight(1f))
-            Footer()
+            Footer(navController)
         }
     }
 }
@@ -206,13 +208,13 @@ private fun TerceraPresentacion(modifier: Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CommonText(modifier = Modifier.padding(horizontal = 8.dp),text = "Motiva con recompensas", fontSize = 35, fontWeight = FontWeight.Bold, maxLines = 2)
+        CommonText(modifier = Modifier.padding(horizontal = 8.dp),text = "Supervisa a todos desde tu celular", fontSize = 35, fontWeight = FontWeight.Bold, maxLines = 2)
         CommonSpacer(size = 50)
         val tasks = listOf(
-            Triple("Noche de Cine", false, 2),
-            Triple("Comprar Lego", true, 3),
-            Triple("Noche de Pizza", false, 1),
-            Triple("Salida a Jugar", true, 1)
+            Triple("Marlon", true, 2),
+            Triple("Paolo", false, 3),
+            Triple("Kiara", false, 1),
+            Triple("Pedro", false, 5)
         )
 
         LazyColumn(
@@ -232,7 +234,7 @@ private fun TerceraPresentacion(modifier: Modifier) {
 }
 
 @Composable
-private fun Footer() {
+private fun Footer(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -248,7 +250,7 @@ private fun Footer() {
             texto = "Soy Tutor",
             containterColor = DarkButtons,
             tamanoTexto = 16
-        ) { }
+        ) { navController.navigate(screensNavigation.LoginTutorScreen.ruta) }
         CommonOutlinedButtons(
             modifier = Modifier
                 .weight(1f)
@@ -256,7 +258,7 @@ private fun Footer() {
             texto = "Soy Alumno",
             containterColor = DarkSelectedItems,
             tamanoTexto = 16
-        ) { }
+        ) { navController.navigate(screensNavigation.LoginUserScreen.ruta) }
 
     }
 }
