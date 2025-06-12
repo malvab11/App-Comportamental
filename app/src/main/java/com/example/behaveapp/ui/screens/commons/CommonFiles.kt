@@ -113,11 +113,13 @@ fun CommonOutlinedButtons(
     tamanoTexto: Int,
     colorTexto: Color = Color.White,
     icon: Int = 0,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     OutlinedButton(
         onClick = onClick,
         modifier = modifier,
+        enabled = enabled,
         colors = ButtonDefaults.outlinedButtonColors(containerColor = containterColor),
         border = BorderStroke(1.dp, borderColor),
         shape = RoundedCornerShape(12.dp)
@@ -155,12 +157,14 @@ fun CommonSpacer(modifier: Modifier = Modifier, size: Int) {
 @Composable
 fun LoginTextField(
     placeholder: String,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    value: String = "",
+    onValueChange: (String) -> Unit = {}
 ) {
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(),
-        value = "",
-        onValueChange = {},
+        value = value,
+        onValueChange = { onValueChange(it) },
         label = {
             CommonText(
                 modifier = Modifier,

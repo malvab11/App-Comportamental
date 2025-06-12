@@ -15,9 +15,11 @@ import com.example.behaveapp.ui.screens.init.login.LoginTutorScreen
 import com.example.behaveapp.ui.screens.init.login.LoginUserScreen
 import com.example.behaveapp.ui.screens.init.PresentationScreen
 import com.example.behaveapp.ui.screens.init.register.RegisterTutorScreen
+import com.example.behaveapp.ui.screens.viewModels.initViewModels.LoginViewModel
 
 @Composable
-fun ScreenController(modifier: Modifier = Modifier) {
+fun ScreenController(modifier: Modifier = Modifier, loginViewModel: LoginViewModel) {
+
     val navigationController = rememberNavController()
     NavHost(
         navController = navigationController,
@@ -27,7 +29,7 @@ fun ScreenController(modifier: Modifier = Modifier) {
             PresentationScreen(navController = navigationController)
         }
         composable(screensNavigation.LoginTutorScreen.ruta) {
-            LoginTutorScreen(navController = navigationController)
+            LoginTutorScreen(navController = navigationController, loginViewModel = loginViewModel)
         }
         composable(screensNavigation.RegisterTutorScreen.ruta) {
             RegisterTutorScreen(navController = navigationController)

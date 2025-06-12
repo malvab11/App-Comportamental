@@ -59,6 +59,7 @@ dependencies {
 
     //Dagger Hilt
     implementation(libs.hilt.android.v250)
+    implementation(libs.androidx.runtime.livedata)
     kapt(libs.hilt.android.compiler.v250)
 
     //Navigation

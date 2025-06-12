@@ -1,5 +1,6 @@
 package com.example.behaveapp.ui.screens.init.login
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,10 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,13 +29,18 @@ import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.screens.commons.LoginTextField
+import com.example.behaveapp.ui.screens.viewModels.initViewModels.LoginViewModel
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
 import com.example.behaveapp.ui.theme.DarkOrange
 
 @Composable
-fun LoginTutorScreen(modifier: Modifier = Modifier, navController: NavController) {
+fun LoginTutorScreen(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    loginViewModel: LoginViewModel
+) {
     Scaffold(
         topBar = { /* Puedes agregar una TopBar aquí */ },
         bottomBar = { /* Puedes agregar una BottomBar aquí */ }
@@ -66,14 +76,40 @@ fun LoginTutorScreen(modifier: Modifier = Modifier, navController: NavController
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                LoginContent(navController = navController)
+                LoginContent(navController = navController, loginViewModel = loginViewModel)
             }
         }
     }
 }
 
 @Composable
-private fun LoginContent(navController: NavController) {
+private fun LoginContent(navController: NavController, loginViewModel: LoginViewModel) {
+
+    val usuario by loginViewModel.usuario.observeAsState("")
+    val contrasena by loginViewModel.contrasena.observeAsState("")
+    val enabled by loginViewModel.isEnabled.observeAsState(false)
+    val context = LocalContext.current
+    val loginResponse by loginViewModel.loginResponse.observeAsState()
+    val mensajeError by loginViewModel.mensajeError.observeAsState()
+
+    LaunchedEffect(loginResponse) {
+        loginResponse?.let {
+            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+            loginViewModel.clearMensajeError()
+        navController.navigate(screensNavigation.LoadingScreen.ruta) {
+            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+        }
+        }
+    }
+
+    LaunchedEffect(mensajeError) {
+        if (!mensajeError.isNullOrBlank()) {
+            Toast.makeText(context, mensajeError, Toast.LENGTH_SHORT).show()
+            loginViewModel.clearMensajeError()
+        }
+    }
+
+
     CommonSpacer(size = 12)
 
     CommonText(
@@ -84,10 +120,17 @@ private fun LoginContent(navController: NavController) {
     )
 
     CommonSpacer(size = 12)
-    LoginTextField("Email o Celular")
+    LoginTextField(
+        "Email o Celular",
+        value = usuario,
+        onValueChange = { loginViewModel.onValueChange(it, contrasena) })
 
     CommonSpacer(size = 12)
-    LoginTextField("Contraseña", isPassword = true)
+    LoginTextField(
+        "Contraseña",
+        isPassword = true,
+        value = contrasena,
+        onValueChange = { loginViewModel.onValueChange(usuario, it) })
 
     CommonSpacer(size = 12)
     CommonText(
@@ -104,11 +147,10 @@ private fun LoginContent(navController: NavController) {
         modifier = Modifier.fillMaxWidth(),
         texto = "Iniciar Sesión",
         containterColor = DarkButtons,
-        tamanoTexto = 16
+        tamanoTexto = 16,
+        enabled = enabled
     ) {
-        navController.navigate(screensNavigation.LoadingScreen.ruta) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-        }
+        loginViewModel.validateLogin(usuario.trim(), contrasena.trim())
     }
 
     CommonSpacer(size = 12)
