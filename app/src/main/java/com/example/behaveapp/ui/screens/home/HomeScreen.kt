@@ -44,6 +44,7 @@ fun HomeScreen(
     val tipoActividades by homeViewModel.tipoActividades.observeAsState()
     val actividades by homeViewModel.actividades.observeAsState()
     val datosCargados by homeViewModel.datosCargados.observeAsState(false)
+    val searchQuery by homeViewModel.searchQuery.observeAsState("")
 
     LaunchedEffect(pantallas) {
         if (pantallas == 1) {
@@ -76,7 +77,9 @@ fun HomeScreen(
                     padding = padding,
                     navController = navController,
                     tipoActividades = tipoActividades?.tipoActividades,
-                    actividades = actividades?.actividades
+                    actividades = actividades?.actividades,
+                    searchQuery = searchQuery,
+                    onBuscar = {}
                 )
             }
             2 -> ProfileScreen(padding = padding)

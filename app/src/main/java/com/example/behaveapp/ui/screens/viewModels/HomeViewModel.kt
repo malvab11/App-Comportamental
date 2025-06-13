@@ -30,7 +30,7 @@ class HomeViewModel @Inject constructor(private val homeUseCase: HomeUseCase) : 
     val actividades: LiveData<ActividadesResponse?> = _actividades
 
     private val _searchQuery = MutableLiveData<String>("")
-    val searchQuery: LiveData<String?> = _searchQuery
+    val searchQuery: LiveData<String> = _searchQuery
 
     private val _mensajeError = MutableLiveData<String?>()
     val mensajeError: LiveData<String?> = _mensajeError
