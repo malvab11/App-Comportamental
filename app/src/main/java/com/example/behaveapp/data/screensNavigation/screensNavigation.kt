@@ -7,7 +7,7 @@ sealed class screensNavigation(val ruta: String) {
     data object LoginUserScreen: screensNavigation(ruta = "loginUserScreen")
     data object LoadingScreen: screensNavigation(ruta = "loadingScreen")
     data object HomeScreen: screensNavigation(ruta = "homeScreen")
-    data object ReportScreen: screensNavigation(ruta = "reportScreen")
-    data object ActivitiesScreen: screensNavigation(ruta = "activitiesScreen")
-    data object ProfileScreen: screensNavigation(ruta = "profileScreen")
+    data object CreateActivityScreen: screensNavigation(ruta = "createActivityScreen/{idActividad}"){
+        fun createRuta(idActividad: Int) = "createActivityScreen/$idActividad"
+    }
 }

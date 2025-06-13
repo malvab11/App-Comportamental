@@ -78,8 +78,9 @@ fun HomeScreen(
                     navController = navController,
                     tipoActividades = tipoActividades?.tipoActividades,
                     actividades = actividades?.actividades,
+                    homeViewModel = homeViewModel,
                     searchQuery = searchQuery,
-                    onBuscar = {}
+                    onBuscar = { texto -> homeViewModel.actualizarBusqueda(texto) }
                 )
             }
             2 -> ProfileScreen(padding = padding)

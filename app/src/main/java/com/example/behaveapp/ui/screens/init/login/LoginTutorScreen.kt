@@ -41,10 +41,7 @@ fun LoginTutorScreen(
     navController: NavController,
     loginViewModel: LoginViewModel
 ) {
-    Scaffold(
-        topBar = { /* Puedes agregar una TopBar aquí */ },
-        bottomBar = { /* Puedes agregar una BottomBar aquí */ }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()

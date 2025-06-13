@@ -162,13 +162,15 @@ fun LoginTextField(
     isPassword: Boolean = false,
     value: String = "",
     isShown: Boolean = false,
+    maxLines: Int = 1,
     isError: Boolean = false,
     errorMessage: String? = null,
     onClick: () -> Unit = {},
     onValueChange: (String) -> Unit = {}
 ) {
     OutlinedTextField(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         value = value,
         onValueChange = { onValueChange(it) },
         label = {
@@ -201,6 +203,7 @@ fun LoginTextField(
                 )
             }
         },
+        maxLines = maxLines,
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = DarkUnselectedItems,
             focusedContainerColor = DarkUnselectedItems,
@@ -210,11 +213,12 @@ fun LoginTextField(
     )
 }
 
+
 @Composable
 fun CommonTaskCard(modifier: Modifier = Modifier, done: Boolean, tareas: String, puntaje: Int) {
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically

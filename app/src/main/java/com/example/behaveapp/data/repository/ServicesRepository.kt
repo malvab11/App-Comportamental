@@ -1,6 +1,7 @@
 package com.example.behaveapp.data.repository
 
 import com.example.behaveapp.data.models.ActividadesResponse
+import com.example.behaveapp.data.models.GenericResponse
 import com.example.behaveapp.data.models.LoginResponse
 import com.example.behaveapp.data.models.RegisterResponse
 import com.example.behaveapp.data.models.TipoActividadesResponse
@@ -25,6 +26,7 @@ class ServicesRepository @Inject constructor(private val apiServices: ApiService
         correo = correo,
         celular = celular
     )
+
     suspend fun registerUser(nombre: String, codigoFamilia: String): RegisterResponse? =
         apiServices.registerUserService(
             nombre = nombre,
@@ -33,5 +35,22 @@ class ServicesRepository @Inject constructor(private val apiServices: ApiService
 
     //Activiades
     suspend fun getTipoActividades(): TipoActividadesResponse? = apiServices.getTipoActividades()
-    suspend fun getActividades(idUsuario: Int) : ActividadesResponse? = apiServices.getActividades(idUsuario = idUsuario)
+    suspend fun getActividades(idUsuario: Int): ActividadesResponse? =
+        apiServices.getActividades(idUsuario = idUsuario)
+
+    suspend fun saveActivities(
+        tipoActividad: Int,
+        tutor: Int,
+        titulo: String,
+        puntaje: Int
+    ): GenericResponse? = apiServices.saveActivities(tipoActividad, tutor, titulo, puntaje)
+
+    suspend fun editActivities(
+        idActividad: Int,
+        tipoActividad: Int,
+        tutor: Int,
+        titulo: String,
+        puntaje: Int
+    ): GenericResponse? =
+        apiServices.editActivities(idActividad, tipoActividad, tutor, titulo, puntaje)
 }

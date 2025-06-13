@@ -18,7 +18,7 @@ import javax.inject.Singleton
 class Modules {
 
     private val BASE_URL =
-        "https://script.google.com/macros/s/AKfycbycL-tAJcJmOG_0PqUhZO6pcQirjPjmxmt2GYWByVRFvG9MpMdzY3diNdik3sCC6p34sA/"
+        "https://script.google.com/macros/s/AKfycbwTTfkc5KoWsuXdFlSVqOVJb-FlPMTukEIS3ovbhz9UDxUduYDQwG-_z7mpJI6AWbcdHA/"
 
     @Provides
     @Singleton
