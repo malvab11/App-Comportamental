@@ -6,24 +6,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.behaveapp.data.screensNavigation.screensNavigation
-import com.example.behaveapp.ui.screens.home.ActivitiesScreen
 import com.example.behaveapp.ui.screens.home.HomeScreen
-import com.example.behaveapp.ui.screens.home.ProfileScreen
-import com.example.behaveapp.ui.screens.home.ReportScreen
 import com.example.behaveapp.ui.screens.init.LoadingScreen
+import com.example.behaveapp.ui.screens.init.PresentationScreen
 import com.example.behaveapp.ui.screens.init.login.LoginTutorScreen
 import com.example.behaveapp.ui.screens.init.login.LoginUserScreen
-import com.example.behaveapp.ui.screens.init.PresentationScreen
 import com.example.behaveapp.ui.screens.init.register.RegisterTutorScreen
+import com.example.behaveapp.ui.screens.viewModels.HomeViewModel
 import com.example.behaveapp.ui.screens.viewModels.initViewModels.LoginViewModel
 
 @Composable
-fun ScreenController(modifier: Modifier = Modifier, loginViewModel: LoginViewModel) {
+fun ScreenController(
+    modifier: Modifier = Modifier,
+    loginViewModel: LoginViewModel,
+    homeViewModel: HomeViewModel
+) {
 
     val navigationController = rememberNavController()
     NavHost(
         navController = navigationController,
-        startDestination = screensNavigation.PresentationScreen.ruta
+        startDestination = screensNavigation.HomeScreen.ruta
     ) {
         composable(screensNavigation.PresentationScreen.ruta) {
             PresentationScreen(navController = navigationController)
@@ -32,16 +34,19 @@ fun ScreenController(modifier: Modifier = Modifier, loginViewModel: LoginViewMod
             LoginTutorScreen(navController = navigationController, loginViewModel = loginViewModel)
         }
         composable(screensNavigation.RegisterTutorScreen.ruta) {
-            RegisterTutorScreen(navController = navigationController)
+            RegisterTutorScreen(
+                navController = navigationController,
+                loginViewModel = loginViewModel
+            )
         }
         composable(screensNavigation.LoginUserScreen.ruta) {
-            LoginUserScreen(navController = navigationController)
+            LoginUserScreen(navController = navigationController, loginViewModel = loginViewModel)
         }
         composable(screensNavigation.LoadingScreen.ruta) {
             LoadingScreen(navController = navigationController)
         }
         composable(screensNavigation.HomeScreen.ruta) {
-            HomeScreen(navController = navigationController)
+            HomeScreen(navController = navigationController, homeViewModel = homeViewModel)
         }
     }
 }

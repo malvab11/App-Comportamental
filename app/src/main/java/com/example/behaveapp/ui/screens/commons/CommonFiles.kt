@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
@@ -159,6 +161,10 @@ fun LoginTextField(
     placeholder: String,
     isPassword: Boolean = false,
     value: String = "",
+    isShown: Boolean = false,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    onClick: () -> Unit = {},
     onValueChange: (String) -> Unit = {}
 ) {
     OutlinedTextField(
@@ -172,14 +178,27 @@ fun LoginTextField(
                 fontSize = 16
             )
         },
+        isError = isError,
         trailingIcon = {
             if (isPassword) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = { onClick() }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_visibility),
-                        contentDescription = "Mostrar Contraseña"
+                        if (isShown) painterResource(R.drawable.ic_visibility_off) else painterResource(
+                            R.drawable.ic_visibility
+                        ),
+                        contentDescription = "Icono de Contraseña"
                     )
                 }
+            }
+        },
+        visualTransformation = if (!isPassword || isShown) VisualTransformation.None else PasswordVisualTransformation(),
+        supportingText = {
+            if (isError && errorMessage != null) {
+                CommonText(
+                    text = errorMessage,
+                    color = Color.Red,
+                    fontSize = 12
+                )
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
@@ -245,9 +264,12 @@ fun CommonTaskCard(modifier: Modifier = Modifier, done: Boolean, tareas: String,
             verticalAlignment = Alignment.CenterVertically
         ) {
             CommonText(
+                modifier = Modifier.weight(1f),
                 text = tareas,
                 fontSize = 16,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 4,
+                textAlign = TextAlign.Start
             )
 
             // Puntos + ícono
@@ -338,7 +360,7 @@ fun CommonUserCard(
             // Puntos + ícono
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                ) {
+            ) {
                 CommonIcon(
                     size = 24,
                     icon = R.drawable.ic_check,

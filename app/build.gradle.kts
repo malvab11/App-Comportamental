@@ -65,7 +65,8 @@ dependencies {
     //Navigation
     implementation(libs.androidx.navigation.compose)
 
-
+    //LiveData
+    implementation (libs.androidx.lifecycle.livedata.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

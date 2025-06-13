@@ -1,5 +1,10 @@
 package com.example.behaveapp.ui.screens.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -9,34 +14,71 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
+import com.example.behaveapp.ui.screens.commons.CommonCircularProgress
 import com.example.behaveapp.ui.screens.commons.CommonText
+import com.example.behaveapp.ui.screens.viewModels.HomeViewModel
+import com.example.behaveapp.ui.theme.BlackEndBackground
+import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkOrange
 import com.example.behaveapp.ui.theme.DarkUnselectedItems
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    homeViewModel: HomeViewModel
 ) {
 
-    var pantalla by rememberSaveable { mutableStateOf(0) }
+    val pantallas by homeViewModel.selectedScreen.observeAsState(0)
+    val tipoActividades by homeViewModel.tipoActividades.observeAsState()
+    val actividades by homeViewModel.actividades.observeAsState()
+    val datosCargados by homeViewModel.datosCargados.observeAsState(false)
+
+    LaunchedEffect(pantallas) {
+        if (pantallas == 1) {
+            homeViewModel.cargarDatos(idUsuario = 1)
+        }
+    }
 
     Scaffold(
         modifier = modifier,
-        topBar = { },
-        bottomBar = { MyBottomBar(selectedScreen = pantalla) { pantalla = it } }
+        bottomBar = { MyBottomBar(selectedScreen = pantallas) { homeViewModel.selectScreen(it) } }
     ) { padding ->
 
-        when (pantalla) {
+        when (pantallas) {
             0 -> ReportScreen(padding = padding)
-            1 -> ActivitiesScreen(padding = padding, navController = navController)
+            1 -> if (!datosCargados) {
+                Column(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(listOf(BlackStartBackground, BlackEndBackground))
+                        )
+                        .padding(padding),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CommonCircularProgress()
+                }
+            } else {
+                ActivitiesScreen(
+                    padding = padding,
+                    navController = navController,
+                    tipoActividades = tipoActividades?.tipoActividades,
+                    actividades = actividades?.actividades
+                )
+            }
             2 -> ProfileScreen(padding = padding)
         }
     }

@@ -84,112 +84,112 @@ fun LoginTutorScreen(
 
 @Composable
 private fun LoginContent(navController: NavController, loginViewModel: LoginViewModel) {
-
     val usuario by loginViewModel.usuario.observeAsState("")
     val contrasena by loginViewModel.contrasena.observeAsState("")
     val enabled by loginViewModel.isEnabled.observeAsState(false)
+    val isShown by loginViewModel.isShown.observeAsState(false)
     val context = LocalContext.current
     val loginResponse by loginViewModel.loginResponse.observeAsState()
     val mensajeError by loginViewModel.mensajeError.observeAsState()
 
+    // Observa Login Exitoso
     LaunchedEffect(loginResponse) {
         loginResponse?.let {
             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
             loginViewModel.clearMensajeError()
-        navController.navigate(screensNavigation.LoadingScreen.ruta) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-        }
+            navController.navigate(screensNavigation.LoadingScreen.ruta) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
         }
     }
 
+    // Observa Errores
     LaunchedEffect(mensajeError) {
-        if (!mensajeError.isNullOrBlank()) {
-            Toast.makeText(context, mensajeError, Toast.LENGTH_SHORT).show()
+        mensajeError?.takeIf { it.isNotBlank() }?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             loginViewModel.clearMensajeError()
         }
     }
 
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        CommonSpacer(size = 12)
+        CommonText(
+            modifier = Modifier.fillMaxWidth(),
+            text = "Iniciar Sesión",
+            fontWeight = FontWeight.Bold,
+            fontSize = 32
+        )
 
-    CommonSpacer(size = 12)
+        CommonSpacer(size = 12)
+        LoginTextField(
+            placeholder = "Email o Celular",
+            value = usuario,
+            onValueChange = { loginViewModel.onValueChange(it, contrasena) }
+        )
 
-    CommonText(
-        modifier = Modifier.fillMaxWidth(),
-        text = "Iniciar Sesión",
-        fontWeight = FontWeight.Bold,
-        fontSize = 32
-    )
+        CommonSpacer(size = 12)
+        LoginTextField(
+            placeholder = "Contraseña",
+            isPassword = true,
+            value = contrasena,
+            isShown = isShown,
+            onClick = { loginViewModel.showPassword() },
+            onValueChange = { loginViewModel.onValueChange(usuario, it) }
+        )
 
-    CommonSpacer(size = 12)
-    LoginTextField(
-        "Email o Celular",
-        value = usuario,
-        onValueChange = { loginViewModel.onValueChange(it, contrasena) })
+        CommonSpacer(size = 12)
+        CommonText(
+            modifier = Modifier.fillMaxWidth(),
+            text = "Olvidaste Contraseña",
+            color = DarkOrange,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.End,
+            fontSize = 12
+        )
 
-    CommonSpacer(size = 12)
-    LoginTextField(
-        "Contraseña",
-        isPassword = true,
-        value = contrasena,
-        onValueChange = { loginViewModel.onValueChange(usuario, it) })
-
-    CommonSpacer(size = 12)
-    CommonText(
-        modifier = Modifier.fillMaxWidth(),
-        text = "Olvidaste Contraseña",
-        color = DarkOrange,
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.End,
-        fontSize = 12
-    )
-
-    CommonSpacer(size = 20)
-    CommonOutlinedButtons(
-        modifier = Modifier.fillMaxWidth(),
-        texto = "Iniciar Sesión",
-        containterColor = DarkButtons,
-        tamanoTexto = 16,
-        enabled = enabled
-    ) {
-        loginViewModel.validateLogin(usuario.trim(), contrasena.trim())
-    }
-
-    CommonSpacer(size = 12)
-    CommonOutlinedButtons(
-        modifier = Modifier.fillMaxWidth(),
-        texto = "Registrarme",
-        containterColor = DarkOrange,
-        tamanoTexto = 16
-    ) { navController.navigate(screensNavigation.RegisterTutorScreen.ruta) }
-
-    CommonSpacer(size = 12)
-    CommonText(
-        text = "o",
-        fontWeight = FontWeight.Bold,
-        fontSize = 15
-    )
-
-    CommonSpacer(size = 12)
-
-    Row(modifier = Modifier.fillMaxWidth()) {
+        CommonSpacer(size = 20)
         CommonOutlinedButtons(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 6.dp),
-            texto = "Google",
-            containterColor = Color.White,
+            modifier = Modifier.fillMaxWidth(),
+            texto = "Iniciar Sesión",
+            containterColor = DarkButtons,
             tamanoTexto = 16,
-            colorTexto = Color.Black,
-            icon = R.drawable.ic_google
-        ) {}
+            enabled = enabled
+        ) {
+            loginViewModel.validateLogin()
+        }
 
+        CommonSpacer(size = 12)
         CommonOutlinedButtons(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 6.dp),
-            texto = "Facebook",
-            containterColor = Color(0xFF2B57E8),
-            tamanoTexto = 16,
-            icon = R.drawable.ic_facebook
-        ) {}
+            modifier = Modifier.fillMaxWidth(),
+            texto = "Registrarme",
+            containterColor = DarkOrange,
+            tamanoTexto = 16
+        ) {
+            navController.navigate(screensNavigation.RegisterTutorScreen.ruta)
+        }
+
+        CommonSpacer(size = 12)
+        CommonText(text = "o", fontWeight = FontWeight.Bold, fontSize = 15)
+        CommonSpacer(size = 12)
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            CommonOutlinedButtons(
+                modifier = Modifier.weight(1f).padding(end = 6.dp),
+                texto = "Google",
+                containterColor = Color.White,
+                colorTexto = Color.Black,
+                icon = R.drawable.ic_google,
+                tamanoTexto = 16
+            ) {}
+
+            CommonOutlinedButtons(
+                modifier = Modifier.weight(1f).padding(start = 6.dp),
+                texto = "Facebook",
+                containterColor = Color(0xFF2B57E8),
+                icon = R.drawable.ic_facebook,
+                tamanoTexto = 16
+            ) {}
+        }
     }
 }
+

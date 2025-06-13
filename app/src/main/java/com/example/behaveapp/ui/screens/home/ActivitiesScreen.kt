@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.behaveapp.R
+import com.example.behaveapp.data.models.Actividades
+import com.example.behaveapp.data.models.TipoActividades
 import com.example.behaveapp.ui.screens.commons.CommonCard
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
@@ -26,13 +28,16 @@ import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
-import com.example.behaveapp.ui.theme.DarkUnselectedItems
 
 @Composable
 fun ActivitiesScreen(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
-    navController: NavHostController
+    navController: NavHostController,
+    actividades: List<Actividades>?,
+    tipoActividades: List<TipoActividades>?,
+    searchQuery: String,
+    onBuscar: (String) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -46,24 +51,30 @@ fun ActivitiesScreen(
             )
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            ActivitiesContent()
+            ActivitiesContent(actividades = actividades, tipoActividades = tipoActividades,searchQuery = searchQuery,onBuscar = onBuscar)
         }
 
-        FAB(modifier = Modifier
-            .align(androidx.compose.ui.Alignment.BottomEnd)
-            .padding(16.dp)
+        FAB(
+            modifier = Modifier
+                .align(androidx.compose.ui.Alignment.BottomEnd)
+                .padding(16.dp)
         )
     }
 }
 
 
 @Composable
-private fun ActivitiesContent() {
-    Header()
+private fun ActivitiesContent(
+    actividades: List<Actividades>?,
+    tipoActividades: List<TipoActividades>?,
+    searchQuery: String,
+    onBuscar: (String) -> Unit
+) {
+    Header(searchQuery = searchQuery, onBuscar = onBuscar)
     CommonSpacer(size = 20)
-    Activities()
-
+    ActivitiesGrouped(actividades, tipoActividades)
 }
+
 
 @Composable
 private fun FAB(modifier: Modifier = Modifier) {
@@ -83,66 +94,43 @@ private fun FAB(modifier: Modifier = Modifier) {
 
 
 @Composable
-private fun Activities() {
-    val tasks = listOf(
-        Triple("Hacer la cama", false, 2),
-        Triple("Participar en clase", false, 3),
-        Triple("Limpiar el cuarto", false, 1)
-    )
-
-    val premios = listOf(
-        Triple("Salida al cine", false, 2),
-        Triple("Compra de Lego", false, 3),
-        Triple("Noche de Pizza", false, 1)
-    )
-
-    val penalidades = listOf(
-        Triple("Mala conducta", false, 10)
-    )
+private fun ActivitiesGrouped(
+    actividades: List<Actividades>?,
+    tipoActividades: List<TipoActividades>?
+) {
+    val agrupado = actividades?.groupBy { it.tipoActividad }
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        item {
-            CommonText(text = "Solicitudes", fontSize = 20, fontWeight = FontWeight.Bold)
-            CommonSpacer(size = 10)
+        if (actividades.isNullOrEmpty() || tipoActividades.isNullOrEmpty()) {
+            item {
+                CommonText(
+                    text = "No hay actividades disponibles",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16
+                )
+            }
+            return@LazyColumn
         }
+        agrupado?.forEach { (tipoId, actividadesLista) ->
+            val titulo = tipoActividades.firstOrNull { it.id == tipoId }?.descripcion ?: "Otros"
 
-        items(tasks) { (tarea, done, puntaje) ->
-            CommonTaskCard(
-                tareas = tarea,
-                done = done,
-                puntaje = puntaje
-            )
-        }
+            item {
+                CommonText(text = titulo, fontSize = 20, fontWeight = FontWeight.Bold)
+                CommonSpacer(size = 10)
+            }
 
-        item {
-            CommonSpacer(size = 20)
-            CommonText(text = "Premios", fontSize = 20, fontWeight = FontWeight.Bold)
-            CommonSpacer(size = 10)
-        }
+            items(actividadesLista) { actividad ->
+                CommonTaskCard(
+                    tareas = actividad.titulo,
+                    done = false,
+                    puntaje = actividad.puntaje
+                )
+            }
 
-        items(premios) { (tarea, done, puntaje) ->
-            CommonTaskCard(
-                tareas = tarea,
-                done = done,
-                puntaje = puntaje
-            )
-        }
-
-        item {
-            CommonSpacer(size = 20)
-            CommonText(text = "Penalidades", fontSize = 20, fontWeight = FontWeight.Bold)
-            CommonSpacer(size = 10)
-        }
-
-        items(penalidades) { (tarea, done, puntaje) ->
-            CommonTaskCard(
-                tareas = tarea,
-                done = done,
-                puntaje = puntaje
-            )
+            item { CommonSpacer(size = 20) }
         }
 
         item { CommonSpacer(size = 40) }
@@ -150,8 +138,9 @@ private fun Activities() {
 }
 
 
+
 @Composable
-private fun Header(modifier: Modifier = Modifier) {
+private fun Header(modifier: Modifier = Modifier,searchQuery: String, onBuscar: (String) -> Unit) {
     CommonText(text = "Actividades", fontSize = 24, fontWeight = FontWeight.Bold)
     CommonSpacer(size = 10)
     CommonCard(
