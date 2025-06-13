@@ -50,7 +50,8 @@ class ServicesRepository @Inject constructor(private val apiServices: ApiService
         tipoActividad: Int,
         tutor: Int,
         titulo: String,
-        puntaje: Int
+        puntaje: Int,
+        eliminado: Int
     ): GenericResponse? =
-        apiServices.editActivities(idActividad, tipoActividad, tutor, titulo, puntaje)
+        apiServices.editActivities(idActividad, tipoActividad, tutor, titulo, puntaje, eliminado)
 }

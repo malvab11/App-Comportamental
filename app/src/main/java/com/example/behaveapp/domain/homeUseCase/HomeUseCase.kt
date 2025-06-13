@@ -26,7 +26,8 @@ class HomeUseCase @Inject constructor(private val servicesRepository: ServicesRe
         tipoActividad: Int,
         tutor: Int,
         titulo: String,
-        puntaje: Int
+        puntaje: Int,
+        eliminado: Int
     ): GenericResponse? =
-        servicesRepository.editActivities(idActividad, tipoActividad, tutor, titulo, puntaje)
+        servicesRepository.editActivities(idActividad, tipoActividad, tutor, titulo, puntaje, eliminado)
 }

@@ -256,18 +256,20 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
         tipoActividad: Int,
         tutor: Int,
         titulo: String,
-        puntaje: Int
+        puntaje: Int,
+        eliminado: Int
     ): GenericResponse? =
         withContext(Dispatchers.IO) {
             return@withContext try {
                 val request = ServiceActividadesRequest(
-                    accion = "editActivities",
+                    accion = "editarActividad",
                     datos = Actividades(
                         idActividad = idActividad,
                         tipoActividad = tipoActividad,
                         tutor = tutor,
                         titulo = titulo,
-                        puntaje = puntaje
+                        puntaje = puntaje,
+                        eliminado = eliminado
                     )
                 )
                 val response = services.saveActividad(request)

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.behaveapp.data.models.ActividadesResponse
+import com.example.behaveapp.data.models.TipoActividades
 import com.example.behaveapp.data.models.TipoActividadesResponse
 import com.example.behaveapp.domain.homeUseCase.HomeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,8 +40,8 @@ class HomeViewModel @Inject constructor(
     private val _tituloActividad = MutableLiveData<String>()
     val tituloActividad: LiveData<String> = _tituloActividad
 
-    private val _tipoActividadSeleccionado = MutableLiveData<String>()
-    val tipoActividadSeleccionado: LiveData<String> = _tipoActividadSeleccionado
+    private val _tipoActividadSeleccionado = MutableLiveData<TipoActividades>()
+    val tipoActividadSeleccionado: LiveData<TipoActividades> = _tipoActividadSeleccionado
 
     private val _puntaje = MutableLiveData<String>()
     val puntaje: LiveData<String> = _puntaje
@@ -54,22 +55,25 @@ class HomeViewModel @Inject constructor(
         _tituloActividad.value = tituloActividad
         _puntaje.value = puntaje
         _isEnabled.value =
-            _tipoActividadSeleccionado.value.isNotBlank() && tituloActividad.isNotBlank() && puntaje.isNotBlank()
+            _tipoActividadSeleccionado.value.descripcion.isNotBlank() && tituloActividad.isNotBlank() && puntaje.isNotBlank()
     }
 
     // Función para Seleccionar el tipo de actividad
-    fun onTipoActividadSeleccionado(descripcion: String) {
-        _tipoActividadSeleccionado.value = descripcion
+    fun onTipoActividadSeleccionado(tipo: TipoActividades) {
+        _tipoActividadSeleccionado.value = tipo
     }
 
     // Funcion para usar solo la actividad pasada
-    fun activityFilter(idActividad: Int){
-        val actividad = _actividades.value?.actividades?.filter { it.idActividad == idActividad }
-        val tipoActividadFiltrado = _tipoActividades.value?.tipoActividades?.filter { it.id == actividad?.first()?.idActividad}
-        if (actividad!!.isNotEmpty()) {
+    fun activityFilter(idActividad: Int) {
+        val actividad =
+            _actividades.value?.actividades?.filter { it.idActividad == idActividad } ?: emptyList()
+        val tipoActividadFiltrado =
+            _tipoActividades.value?.tipoActividades?.filter { it.id == actividad?.first()?.tipoActividad }
+                ?: emptyList()
+        if (actividad.isNotEmpty()) {
             _tituloActividad.value = actividad.first().titulo
             _puntaje.value = actividad.first().puntaje.toString()
-            _tipoActividadSeleccionado.value = tipoActividadFiltrado?.first()?.descripcion
+            _tipoActividadSeleccionado.value = tipoActividadFiltrado?.first()
         }
     }
 
@@ -103,7 +107,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun saveActivities(tituloActividad: String, puntaje: String){
+    fun saveActivities(tituloActividad: String, puntaje: String) {
         viewModelScope.launch {
             _datosCargados.value = false
 
@@ -113,6 +117,47 @@ class HomeViewModel @Inject constructor(
                 _mensaje.value = response?.message ?: "Error al guardar la actrividad"
             }
 
+        }
+    }
+
+    fun editActivities(
+        idActividad: Int,
+        tituloActividad: String,
+        puntaje: String,
+        eliminado: Int = 0
+    ) {
+        viewModelScope.launch {
+            _datosCargados.value = false
+
+            val response = if (eliminado == 1) {
+                val actividad =
+                    _actividades.value?.actividades?.firstOrNull { it.idActividad == idActividad }
+                if (actividad == null) {
+                    _mensaje.value = "Actividad no encontrada"
+                    return@launch
+                }
+                homeUseCase.editActividad(
+                    idActividad = idActividad,
+                    tipoActividad = actividad.tipoActividad!!,
+                    tutor = actividad.tutor!!,
+                    titulo = actividad.titulo!!,
+                    puntaje = actividad.puntaje!!,
+                    eliminado = 1
+                )
+            } else {
+                homeUseCase.editActividad(
+                    idActividad = idActividad,
+                    tipoActividad = _tipoActividadSeleccionado.value.id,
+                    tutor = 1,
+                    titulo = tituloActividad,
+                    puntaje = puntaje.toInt(),
+                    eliminado = eliminado
+                )
+            }
+
+            if (response?.status != "success") {
+                _mensaje.value = response?.message ?: "Error al guardar la actividad"
+            }
         }
     }
 }

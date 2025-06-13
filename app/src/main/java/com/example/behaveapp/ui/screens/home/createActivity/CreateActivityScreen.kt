@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.behaveapp.R
+import com.example.behaveapp.data.models.TipoActividades
 import com.example.behaveapp.ui.screens.commons.CommonCard
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
@@ -54,36 +55,14 @@ fun CreateActivityScreen(
     idActividad: Int
 ) {
 
-    Log.i("Valor", idActividad.toString())
-
     val showDialog = remember { mutableStateOf(false) }
     val enabled by homeViewModel.isEnabled.observeAsState(false)
-    val context = LocalContext.current
 
-    val tipoSeleccionado by homeViewModel.tipoActividadSeleccionado.observeAsState("Tipo Actividad")
+    val tipoSeleccionado by homeViewModel.tipoActividadSeleccionado.observeAsState(TipoActividades(id = 0, descripcion = "Seleccione el Tipo de Actividad", detalle = ""))
 
     val tipoActividad by homeViewModel.tipoActividades.observeAsState()
     val tituloActividad by homeViewModel.tituloActividad.observeAsState("")
     val puntajeActividad by homeViewModel.puntaje.observeAsState("")
-
-//    // Observa Login Exitoso
-//    LaunchedEffect(registerUserResponse) {
-//        registerUserResponse?.let {
-//            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-//            homeViewModel.clearMensajeError()
-//            navController.navigate(screensNavigation.LoadingScreen.ruta) {
-//                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-//            }
-//        }
-//    }
-//
-//    // Observa Errores
-//    LaunchedEffect(mensajeError) {
-//        mensajeError?.takeIf { it.isNotBlank() }?.let {
-//            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-//            homeViewModel.clearMensajeError()
-//        }
-//    }
 
     Scaffold { innerPadding ->
         Column(
@@ -115,7 +94,7 @@ fun CreateActivityScreen(
                                         .fillMaxWidth()
                                         .padding(8.dp)
                                         .clickable {
-                                            homeViewModel.onTipoActividadSeleccionado(tipo.descripcion)
+                                            homeViewModel.onTipoActividadSeleccionado(tipo)
                                             homeViewModel.onValueChange(
                                                 tituloActividad = tituloActividad,
                                                 puntaje = puntajeActividad
@@ -140,7 +119,7 @@ fun CreateActivityScreen(
                 CreateContent(
                     homeViewModel = homeViewModel,
                     showDialog = showDialog,
-                    tipoSeleccionado = tipoSeleccionado,
+                    tipoSeleccionado = tipoSeleccionado.descripcion,
                     tituloActividad = tituloActividad,
                     puntajeActividad = puntajeActividad
                 )
@@ -154,7 +133,8 @@ fun CreateActivityScreen(
                     enabled = enabled,
                     tamanoTexto = 16
                 ) {
-                    homeViewModel.saveActivities(
+                    homeViewModel.editActivities(
+                        idActividad = idActividad,
                         tituloActividad = tituloActividad,
                         puntaje = puntajeActividad
                     )
@@ -166,9 +146,11 @@ fun CreateActivityScreen(
                     containterColor = Color.Red,
                     tamanoTexto = 16
                 ) {
-                    homeViewModel.saveActivities(
+                    homeViewModel.editActivities(
+                        idActividad = idActividad,
                         tituloActividad = tituloActividad,
-                        puntaje = puntajeActividad
+                        puntaje = puntajeActividad,
+                        eliminado = 1
                     )
                     navController.popBackStack()
                 }
