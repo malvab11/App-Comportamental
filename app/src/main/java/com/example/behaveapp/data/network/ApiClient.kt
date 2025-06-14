@@ -1,16 +1,16 @@
 package com.example.behaveapp.data.network
 
+import com.example.behaveapp.data.models.Actividades
 import com.example.behaveapp.data.models.ActividadesRequest
 import com.example.behaveapp.data.models.ActividadesResponse
-import com.example.behaveapp.data.models.GenericResponse
+import com.example.behaveapp.data.models.CreateRequest
+import com.example.behaveapp.data.models.CreateResponse
 import com.example.behaveapp.data.models.LoginRequest
 import com.example.behaveapp.data.models.LoginResponse
 import com.example.behaveapp.data.models.RegisterResponse
 import com.example.behaveapp.data.models.RegisterTutorRequest
 import com.example.behaveapp.data.models.RegisterUserRequest
-import com.example.behaveapp.data.models.ServiceActividadesRequest
-import com.example.behaveapp.data.models.TipoActividadesRequest
-import com.example.behaveapp.data.models.TipoActividadesResponse
+import com.example.behaveapp.data.models.TipoActividades
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -31,19 +31,23 @@ interface ApiClient {
 
     //Tipo Actividad
     @POST("exec")
-    suspend fun tipoActividad(@Body request: TipoActividadesRequest): Response<TipoActividadesResponse>
+    suspend fun getTipoActividades(@Body request: ActividadesRequest): Response<ActividadesResponse<TipoActividades>>
 
-    //Actividades
+    //Actividades List
     @POST("exec")
-    suspend fun actividadesList(@Body request: ActividadesRequest): Response<ActividadesResponse>
+    suspend fun getActividadesList(@Body request: ActividadesRequest): Response<ActividadesResponse<Actividades>>
 
-    //Actividades
+    //Crear Actividad
     @POST("exec")
-    suspend fun saveActividad(@Body request: ServiceActividadesRequest): Response<GenericResponse>
+    suspend fun saveActividad(@Body request: CreateRequest): Response<CreateResponse>
 
-    //Actividades
+    //Editar Actividad
     @POST("exec")
-    suspend fun editActividad(@Body request: ServiceActividadesRequest): Response<GenericResponse>
+    suspend fun editActividad(@Body request: CreateRequest): Response<CreateResponse>
+
+    //Eliminar Actividad
+    @POST("exec")
+    suspend fun deleteActividad(@Body request: CreateRequest): Response<CreateResponse>
 
 
 }

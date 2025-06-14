@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.behaveapp.data.models.RegisterTutorRequest
 import com.example.behaveapp.data.models.RegisterUserRequest
 import com.example.behaveapp.domain.registerUseCases.RegisterUseCases
-import com.example.behaveapp.ui.data.RegisterState
+import com.example.behaveapp.ui.data.init.RegisterState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -78,12 +78,9 @@ class RegisterViewModel @Inject constructor(private val registerUseCase: Registe
                 )
             )
 
-            val mensajeFinal = data?.message ?: "Error al registrar usuario"
-
             _variables.update {
                 it.copy(
                     registerResponse = data,
-                    mensaje = mensajeFinal,
                     isLoading = false
                 )
             }
@@ -102,12 +99,9 @@ class RegisterViewModel @Inject constructor(private val registerUseCase: Registe
                 )
             )
 
-            val mensajeFinal = data?.message ?: "Error al ingresar a la Familia"
-
             _variables.update {
                 it.copy(
                     registerResponse = data,
-                    mensaje = mensajeFinal,
                     isLoading = false
                 )
             }

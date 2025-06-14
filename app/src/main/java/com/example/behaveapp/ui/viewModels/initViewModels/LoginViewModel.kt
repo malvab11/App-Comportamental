@@ -3,7 +3,7 @@ package com.example.behaveapp.ui.viewModels.initViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.behaveapp.domain.loginUseCase.LoginUseCase
-import com.example.behaveapp.ui.data.LoginState
+import com.example.behaveapp.ui.data.init.LoginState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,10 +36,6 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
         _variables.update { it.copy(isShown = !it.isShown) }
     }
 
-    fun clearMessage() {
-        _variables.update { it.copy(mensaje = null) }
-    }
-
     fun validateLogin() {
         viewModelScope.launch {
             _variables.update { it.copy(isLoading = true) }
@@ -48,11 +44,9 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
                 usuario = _variables.value.usuario.trim(),
                 contrasena = _variables.value.contrasena.trim()
             )
-            val mensajeFinal = response?.message ?: "Error en el login, vuelve a intentar"
             _variables.update {
                 it.copy(
                     loginResponse = response,
-                    mensaje = mensajeFinal,
                     isLoading = false
                 )
             }

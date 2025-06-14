@@ -58,7 +58,7 @@ fun LoginTutorScreen(
         if (response != null){
             commonToast(context,response.message)
             if (response.status == "success"){
-                navController.navigate(ScreenNavigation.HomeScreen.ruta){
+                navController.navigate(ScreenNavigation.HomeScreen.crearRuta(idUsuario = variables.loginResponse?.idUsuario ?: 0, tipoUsuario = variables.loginResponse?.tipoUsuario ?: 0)){
                     popUpTo(0)
                 }
                 loginViewModel.resetValues()

@@ -3,7 +3,9 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
+    id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -41,6 +43,12 @@ android {
     }
 }
 
+kotlin {
+    sourceSets.configureEach {
+        kotlin.srcDir("build/generated/ksp/${name}/kotlin")
+    }
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -55,7 +63,7 @@ dependencies {
     //Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-    implementation (libs.logging.interceptor)
+    implementation(libs.logging.interceptor)
 
     //Dagger Hilt
     implementation(libs.hilt.android.v250)
@@ -66,7 +74,13 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     //LiveData
-    implementation (libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // Room
+    implementation("androidx.room:room-runtime:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+    ksp("androidx.room:room-compiler:2.5.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

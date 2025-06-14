@@ -1,4 +1,4 @@
-package com.example.behaveapp.ui.data
+package com.example.behaveapp.ui.data.init
 
 import com.example.behaveapp.data.models.RegisterResponse
 
@@ -9,7 +9,6 @@ data class RegisterState(
     val contrasena: String = "",
     val contrasenaRepetida: String = "",
     val codigoFamilia: String = "",
-    val mensaje: String? = "",
     val isEnabled: Boolean = false,
     val isShown: Boolean = false,
     val isLoading: Boolean = false,

@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.behaveapp.R
 import com.example.behaveapp.data.screensNavigation.ScreenNavigation
-import com.example.behaveapp.ui.data.RegisterState
+import com.example.behaveapp.ui.data.init.RegisterState
 import com.example.behaveapp.ui.screens.commons.CommonAlertDialog
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
@@ -56,7 +56,12 @@ fun RegisterUserScreem(
         if (response != null) {
             commonToast(context, response.message)
             if (response.status == "success") {
-                navController.navigate(ScreenNavigation.HomeScreen.ruta) {
+                navController.navigate(
+                    ScreenNavigation.HomeScreen.crearRuta(
+                        idUsuario = variables.registerResponse?.idUsuario ?: 0,
+                        tipoUsuario = variables.registerResponse?.tipoUsuario ?: 0
+                    )
+                ) {
                     popUpTo(0)
                 }
                 registerViewModel.resetValues()

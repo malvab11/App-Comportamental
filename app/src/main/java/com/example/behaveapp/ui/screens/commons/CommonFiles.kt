@@ -54,21 +54,45 @@ import com.example.behaveapp.ui.theme.DarkSelectedItems
 import com.example.behaveapp.ui.theme.DarkUnselectedItems
 
 @Composable
-fun CommonAlertDialog(text:String, fontSize: Int, onDismissRequest: () -> Unit = {}, confirmButton: () -> Unit = {}) {
+fun CommonAlertDialog(
+    titulo: String = "",
+    text: String,
+    fontSize: Int,
+    showButtons: Boolean = false,
+    onDismiss: () -> Unit = {},
+    onConfirm: () -> Unit = {}
+) {
+    if (showButtons) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { CommonText(text = titulo, fontSize = 16) },
+            text = { CommonText(text = text, fontSize = fontSize) },
+            confirmButton = {
+                CommonOutlinedButtons(texto = "Eliminar", containterColor = DarkOrange, tamanoTexto = 12) { onConfirm() }
+            },
+            dismissButton = {
+                CommonOutlinedButtons(texto = "Cancelar", containterColor = DarkSelectedItems, tamanoTexto = 12) { onDismiss() }
+            }
+        )
+    }else{
     AlertDialog(
-        onDismissRequest = {onDismissRequest()},
-        confirmButton = {confirmButton()},
+        onDismissRequest = {},
+        confirmButton = {},
         text = {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
                 CommonCircularProgress()
                 Spacer(modifier = Modifier.width(16.dp))
                 CommonText(text = text, fontSize = fontSize)
             }
         }
     )
+    }
 }
 
-fun commonToast(context: Context, message: String){
+fun commonToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }
 
@@ -147,7 +171,10 @@ fun CommonOutlinedButtons(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        colors = ButtonDefaults.outlinedButtonColors(containerColor = containterColor, disabledContainerColor = DarkSelectedItems),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = containterColor,
+            disabledContainerColor = DarkSelectedItems
+        ),
         border = BorderStroke(1.dp, borderColor),
         shape = RoundedCornerShape(12.dp)
     ) {

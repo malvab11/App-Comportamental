@@ -22,8 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.behaveapp.R
-import com.example.behaveapp.data.screensNavigation.ScreenNavigation
-import com.example.behaveapp.ui.data.RegisterState
+import com.example.behaveapp.ui.data.init.RegisterState
 import com.example.behaveapp.ui.screens.commons.CommonAlertDialog
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons

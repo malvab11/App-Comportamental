@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.behaveapp.R
 import com.example.behaveapp.ui.screens.commons.CommonCard
+import com.example.behaveapp.ui.screens.commons.CommonCircularProgress
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.screens.commons.CommonUserCard
@@ -22,7 +23,7 @@ import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 
 @Composable
-fun ReportScreen(modifier: Modifier = Modifier, padding: PaddingValues) {
+fun ReportScreen(modifier: Modifier = Modifier, padding: PaddingValues, isLoadingData: Boolean) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -36,7 +37,11 @@ fun ReportScreen(modifier: Modifier = Modifier, padding: PaddingValues) {
                 end = 10.dp
             )
     ) {
-        ReportContent()
+        if(isLoadingData){
+            CommonCircularProgress()
+        }else{
+            ReportContent()
+        }
     }
 }
 

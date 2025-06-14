@@ -1,7 +1,7 @@
 package com.example.behaveapp.ui.screens.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +16,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,27 +31,29 @@ import com.example.behaveapp.R
 import com.example.behaveapp.data.models.Actividades
 import com.example.behaveapp.data.models.TipoActividades
 import com.example.behaveapp.data.screensNavigation.ScreenNavigation
+import com.example.behaveapp.ui.screens.commons.CommonAlertDialog
+import com.example.behaveapp.ui.screens.commons.CommonCircularProgress
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonTaskCard
 import com.example.behaveapp.ui.screens.commons.CommonText
-import com.example.behaveapp.ui.viewModels.HomeViewModel
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
 import com.example.behaveapp.ui.theme.DarkUnselectedItems
+import com.example.behaveapp.ui.viewModels.homeViewModels.ActivityViewModel
 
 @Composable
 fun ActivitiesScreen(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
     navController: NavHostController,
-    actividades: List<Actividades>?,
-    tipoActividades: List<TipoActividades>?,
-    homeViewModel: HomeViewModel,
-    searchQuery: String,
-    onBuscar: (String) -> Unit
+    viewModel: ActivityViewModel,
+    idUsuario: Int,
+    tipoUsuario: Int,
 ) {
+    val variables by viewModel.variables.collectAsState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -59,22 +65,48 @@ fun ActivitiesScreen(
                 end = 10.dp
             )
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            ActivitiesContent(
-                actividades = actividades,
-                tipoActividades = tipoActividades,
-                searchQuery = searchQuery,
-                navController = navController,
-                homeViewModel = homeViewModel,
-                onBuscar = onBuscar
-            )
+        if (variables.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+            ) {
+                CommonCircularProgress()
+            }
+        } else {
+            if (variables.isShownAlertDialog) {
+                CommonAlertDialog(
+                    titulo = "Eliminar Actividad",
+                    text = "¿Deseas eliminar la actividad seleccionada?",
+                    fontSize = 12,
+                    showButtons = true,
+                    onConfirm = {
+                        viewModel.deleteActivity(variables.idActividadSeleccionada)
+                        viewModel.getActividadesList(idUsuario = idUsuario)
+                        viewModel.showDialog()
+                    },
+                    onDismiss = { viewModel.showDialog() })
+            }
+            Column(modifier = Modifier.fillMaxSize()) {
+                ActivitiesContent(
+                    actividades = variables.actividades?.data,
+                    tipoActividades = variables.tipoActividades?.data,
+                    idUsuario = idUsuario,
+                    searchQuery = variables.searchQuery,
+                    navController = navController,
+                    onActividadSelected = { viewModel.getActividadId(it) },
+                    onClick = { viewModel.showDialog() },
+                    onBuscar = { viewModel.search(it) }
+                )
+            }
         }
-
         FAB(
             modifier = Modifier
-                .align(androidx.compose.ui.Alignment.BottomEnd)
+                .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            navController = navController
+            navController = navController,
+            idUsuario = idUsuario,
+            tipoActividades = variables.tipoActividades?.data
         )
     }
 }
@@ -84,9 +116,11 @@ fun ActivitiesScreen(
 private fun ActivitiesContent(
     actividades: List<Actividades>?,
     tipoActividades: List<TipoActividades>?,
+    idUsuario: Int,
     searchQuery: String,
     navController: NavHostController,
-    homeViewModel: HomeViewModel,
+    onActividadSelected: (Int) -> Unit,
+    onClick: () -> Unit,
     onBuscar: (String) -> Unit
 ) {
     Header(searchQuery = searchQuery, onBuscar = onBuscar)
@@ -95,18 +129,26 @@ private fun ActivitiesContent(
     val actividadesFiltradas = actividades?.filter {
         it.titulo.contains(searchQuery, ignoreCase = true)
     }
-    ActivitiesGrouped(actividadesFiltradas, tipoActividades, navController = navController, homeViewModel = homeViewModel)
+    ActivitiesGrouped(
+        actividades = actividadesFiltradas,
+        tipoActividades = tipoActividades,
+        idUsuario = idUsuario,
+        navController = navController,
+        onActividadSelected = { onActividadSelected(it) },
+        onClick = { onClick() }
+    )
 }
 
 
 @Composable
-private fun FAB(modifier: Modifier = Modifier, navController: NavHostController) {
+private fun FAB(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    idUsuario: Int,
+    tipoActividades: List<TipoActividades>?,
+) {
     FloatingActionButton(
-        onClick = {
-            navController.navigate(
-                ScreenNavigation.CreateActivityScreen.createRuta(idActividad = 0)
-            )
-        },
+        onClick = {},
         modifier = modifier,
         containerColor = DarkButtons
     ) {
@@ -114,7 +156,18 @@ private fun FAB(modifier: Modifier = Modifier, navController: NavHostController)
             size = 14,
             icon = R.drawable.ic_plus,
             contentDescription = "Añadir actividad",
-            tint = Color.White
+            tint = Color.White,
+            onClick = {
+                val navBackStackEntry = navController.currentBackStackEntry
+                navBackStackEntry?.savedStateHandle?.set("idUsuario", idUsuario)
+                navBackStackEntry?.savedStateHandle?.set(
+                    "tipoActividades",
+                    tipoActividades
+                )
+                navController.navigate(
+                    ScreenNavigation.CreateActivityScreen.ruta
+                )
+            }
         )
     }
 }
@@ -124,8 +177,10 @@ private fun FAB(modifier: Modifier = Modifier, navController: NavHostController)
 private fun ActivitiesGrouped(
     actividades: List<Actividades>?,
     tipoActividades: List<TipoActividades>?,
+    idUsuario: Int,
     navController: NavHostController,
-    homeViewModel: HomeViewModel
+    onActividadSelected: (Int) -> Unit,
+    onClick: () -> Unit
 ) {
     val agrupado = actividades?.groupBy { it.tipoActividad }
 
@@ -156,11 +211,26 @@ private fun ActivitiesGrouped(
                     tareas = actividad.titulo,
                     done = false,
                     puntaje = actividad.puntaje,
-                    modifier = Modifier.clickable {
-                        navController.navigate(
-                            ScreenNavigation.CreateActivityScreen.createRuta(idActividad = actividad.idActividad ?: 0)
+                    modifier = Modifier.pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                val navBackStackEntry = navController.currentBackStackEntry
+
+                                navBackStackEntry?.savedStateHandle?.set("idUsuario", idUsuario)
+                                navBackStackEntry?.savedStateHandle?.set(
+                                    "tipoActividades",
+                                    tipoActividades
+                                )
+                                navBackStackEntry?.savedStateHandle?.set("actividad", actividad)
+                                navController.navigate(
+                                    ScreenNavigation.CreateActivityScreen.ruta
+                                )
+                            },
+                            onLongPress = {
+                                onActividadSelected(actividad.idActividad!!)
+                                onClick()
+                            }
                         )
-                        homeViewModel.activityFilter(actividad.idActividad ?: 0)
                     }
                 )
             }
@@ -194,7 +264,10 @@ private fun Header(
                 )
             },
             trailingIcon = {
-                Icon(painter = painterResource(R.drawable.ic_search),contentDescription = "Icono de Buscar")
+                Icon(
+                    painter = painterResource(R.drawable.ic_search),
+                    contentDescription = "Icono de Buscar"
+                )
             },
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = DarkUnselectedItems,

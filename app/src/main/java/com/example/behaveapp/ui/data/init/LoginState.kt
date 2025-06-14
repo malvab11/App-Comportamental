@@ -1,4 +1,4 @@
-package com.example.behaveapp.ui.data
+package com.example.behaveapp.ui.data.init
 
 import com.example.behaveapp.data.models.LoginResponse
 
@@ -8,6 +8,5 @@ data class LoginState (
     val isShown: Boolean = false,
     val isEnabled: Boolean = false,
     val isLoading: Boolean = false,
-    val mensaje: String? = null,
     val loginResponse: LoginResponse? = null
 )

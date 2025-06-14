@@ -11,7 +11,6 @@ data class LoginRequest(
 data class LoginResponse(
     val status: String,
     val message: String,
-    val nombre: String? = null,
-    @SerializedName("tipo_usuario") val tipoUsuario: Int? = null,
-    val codigoFamilia: String? = null
+    val idUsuario: Int? = 0,
+    @SerializedName("tipo_usuario") val tipoUsuario: Int? = 0
 )

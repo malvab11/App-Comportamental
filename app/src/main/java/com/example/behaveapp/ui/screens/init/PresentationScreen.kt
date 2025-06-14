@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.behaveapp.data.screensNavigation.ScreenNavigation
+import com.example.behaveapp.ui.screens.commons.CommonCircularProgress
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonTaskCard
@@ -46,15 +48,34 @@ import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
 import com.example.behaveapp.ui.theme.DarkSelectedItems
 import com.example.behaveapp.ui.theme.DarkUnselectedItems
+import com.example.behaveapp.ui.viewModels.initViewModels.PresentationViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun PresentationScreen(modifier: Modifier = Modifier, navController: NavController) {
+fun PresentationScreen(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    presentationViewModel: PresentationViewModel
+) {
 
-    Scaffold(
-        topBar = { /* ... */ },
-        bottomBar = { /* ... */ }
-    ) { innerPadding ->
+    val isLoggedIn by presentationViewModel.isLoggedIn.collectAsState()
+    val valor by presentationViewModel.valor.collectAsState()
+
+    LaunchedEffect(Unit) {
+        presentationViewModel.validarUsuarioGuardado()
+    }
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn == true) {
+            navController.navigate(ScreenNavigation.HomeScreen.crearRuta(
+                idUsuario = valor?.idUsuario ?: 0, tipoUsuario = valor?.tipoUsuario ?: 0
+            )) {
+                popUpTo(ScreenNavigation.PresentationScreen.ruta) { inclusive = true }
+            }
+        }
+    }
+
+    Scaffold { innerPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -65,8 +86,14 @@ fun PresentationScreen(modifier: Modifier = Modifier, navController: NavControll
                 )
                 .padding(innerPadding) // Aquí aplicas el padding interno
         ) {
-            Carrousel(modifier = Modifier.weight(1f))
-            Footer(navController)
+            if (isLoggedIn == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CommonCircularProgress()
+                }
+            } else {
+                Carrousel(modifier = Modifier.weight(1f))
+                Footer(navController)
+            }
         }
     }
 }
@@ -176,7 +203,13 @@ private fun SegundaPresentacion(modifier: Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CommonText(modifier = Modifier.padding(horizontal = 8.dp),text = "Motiva con recompensas", fontSize = 35, fontWeight = FontWeight.Bold, maxLines = 2)
+        CommonText(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = "Motiva con recompensas",
+            fontSize = 35,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2
+        )
         CommonSpacer(size = 50)
         val tasks = listOf(
             Triple("Noche de Cine", false, 2),
@@ -208,7 +241,13 @@ private fun TerceraPresentacion(modifier: Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CommonText(modifier = Modifier.padding(horizontal = 8.dp),text = "Supervisa a todos desde tu celular", fontSize = 35, fontWeight = FontWeight.Bold, maxLines = 2)
+        CommonText(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = "Supervisa a todos desde tu celular",
+            fontSize = 35,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2
+        )
         CommonSpacer(size = 50)
         val tasks = listOf(
             Triple("Marlon", true, 2),
