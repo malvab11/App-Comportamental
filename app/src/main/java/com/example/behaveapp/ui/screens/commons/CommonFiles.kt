@@ -1,5 +1,7 @@
 package com.example.behaveapp.ui.screens.commons
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,7 +16,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +52,25 @@ import com.example.behaveapp.ui.theme.DarkButtons
 import com.example.behaveapp.ui.theme.DarkOrange
 import com.example.behaveapp.ui.theme.DarkSelectedItems
 import com.example.behaveapp.ui.theme.DarkUnselectedItems
+
+@Composable
+fun CommonAlertDialog(text:String, fontSize: Int, onDismissRequest: () -> Unit = {}, confirmButton: () -> Unit = {}) {
+    AlertDialog(
+        onDismissRequest = {onDismissRequest()},
+        confirmButton = {confirmButton()},
+        text = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                CommonCircularProgress()
+                Spacer(modifier = Modifier.width(16.dp))
+                CommonText(text = text, fontSize = fontSize)
+            }
+        }
+    )
+}
+
+fun commonToast(context: Context, message: String){
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+}
 
 @Composable
 fun CommonText(
@@ -122,7 +147,7 @@ fun CommonOutlinedButtons(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        colors = ButtonDefaults.outlinedButtonColors(containerColor = containterColor),
+        colors = ButtonDefaults.outlinedButtonColors(containerColor = containterColor, disabledContainerColor = DarkSelectedItems),
         border = BorderStroke(1.dp, borderColor),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -165,6 +190,7 @@ fun LoginTextField(
     maxLines: Int = 1,
     isError: Boolean = false,
     errorMessage: String? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
     onClick: () -> Unit = {},
     onValueChange: (String) -> Unit = {}
 ) {
@@ -193,6 +219,8 @@ fun LoginTextField(
                 }
             }
         },
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (!isPassword || isShown) VisualTransformation.None else PasswordVisualTransformation(),
         supportingText = {
             if (isError && errorMessage != null) {

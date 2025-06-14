@@ -1,59 +1,57 @@
 package com.example.behaveapp.ui.screens
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.behaveapp.data.screensNavigation.screensNavigation
+import com.example.behaveapp.data.screensNavigation.ScreenNavigation
 import com.example.behaveapp.ui.screens.home.HomeScreen
 import com.example.behaveapp.ui.screens.home.createActivity.CreateActivityScreen
-import com.example.behaveapp.ui.screens.init.LoadingScreen
 import com.example.behaveapp.ui.screens.init.PresentationScreen
 import com.example.behaveapp.ui.screens.init.login.LoginTutorScreen
-import com.example.behaveapp.ui.screens.init.login.LoginUserScreen
+import com.example.behaveapp.ui.screens.init.register.RegisterUserScreem
 import com.example.behaveapp.ui.screens.init.register.RegisterTutorScreen
-import com.example.behaveapp.ui.screens.viewModels.HomeViewModel
-import com.example.behaveapp.ui.screens.viewModels.initViewModels.LoginViewModel
+import com.example.behaveapp.ui.viewModels.HomeViewModel
+import com.example.behaveapp.ui.viewModels.initViewModels.LoginViewModel
+import com.example.behaveapp.ui.viewModels.initViewModels.RegisterViewModel
 
 @Composable
 fun ScreenController(
-    modifier: Modifier = Modifier,
     loginViewModel: LoginViewModel,
+    registerViewModel: RegisterViewModel,
     homeViewModel: HomeViewModel
 ) {
 
     val navigationController = rememberNavController()
     NavHost(
         navController = navigationController,
-        startDestination = screensNavigation.HomeScreen.ruta
+        startDestination = ScreenNavigation.PresentationScreen.ruta
     ) {
-        composable(screensNavigation.PresentationScreen.ruta) {
+        composable(ScreenNavigation.PresentationScreen.ruta) {
             PresentationScreen(navController = navigationController)
         }
-        composable(screensNavigation.LoginTutorScreen.ruta) {
+        composable(ScreenNavigation.LoginTutorScreen.ruta) {
             LoginTutorScreen(navController = navigationController, loginViewModel = loginViewModel)
         }
-        composable(screensNavigation.RegisterTutorScreen.ruta) {
+        composable(ScreenNavigation.RegisterTutorScreen.ruta) {
             RegisterTutorScreen(
                 navController = navigationController,
-                loginViewModel = loginViewModel
+                registerViewModel = registerViewModel
             )
         }
-        composable(screensNavigation.LoginUserScreen.ruta) {
-            LoginUserScreen(navController = navigationController, loginViewModel = loginViewModel)
+        composable(ScreenNavigation.RegisterUserScreen.ruta) {
+            RegisterUserScreem(navController = navigationController, registerViewModel = registerViewModel)
         }
-        composable(screensNavigation.LoadingScreen.ruta) {
-            LoadingScreen(navController = navigationController)
-        }
-        composable(screensNavigation.HomeScreen.ruta) {
+        composable(ScreenNavigation.HomeScreen.ruta) {
             HomeScreen(navController = navigationController, homeViewModel = homeViewModel)
         }
-        composable(screensNavigation.CreateActivityScreen.ruta){
-            dato -> val idActividad = dato.arguments!!.getString("idActividad")
-            CreateActivityScreen(homeViewModel = homeViewModel, navController = navigationController, idActividad = idActividad?.toInt() ?: 0)
+        composable(ScreenNavigation.CreateActivityScreen.ruta) { dato ->
+            val idActividad = dato.arguments!!.getString("idActividad")
+            CreateActivityScreen(
+                homeViewModel = homeViewModel,
+                navController = navigationController,
+                idActividad = idActividad?.toInt() ?: 0
+            )
         }
     }
 }

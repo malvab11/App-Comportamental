@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.behaveapp.data.screensNavigation.screensNavigation
+import com.example.behaveapp.data.screensNavigation.ScreenNavigation
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonTaskCard
@@ -250,7 +250,7 @@ private fun Footer(navController: NavController) {
             texto = "Soy Tutor",
             containterColor = DarkButtons,
             tamanoTexto = 16
-        ) { navController.navigate(screensNavigation.LoginTutorScreen.ruta) }
+        ) { navController.navigate(ScreenNavigation.LoginTutorScreen.ruta) }
         CommonOutlinedButtons(
             modifier = Modifier
                 .weight(1f)
@@ -258,7 +258,7 @@ private fun Footer(navController: NavController) {
             texto = "Soy Alumno",
             containterColor = DarkSelectedItems,
             tamanoTexto = 16
-        ) { navController.navigate(screensNavigation.LoginUserScreen.ruta) }
+        ) { navController.navigate(ScreenNavigation.RegisterUserScreen.ruta) }
 
     }
 }

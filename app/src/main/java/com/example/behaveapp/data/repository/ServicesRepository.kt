@@ -11,27 +11,10 @@ import javax.inject.Inject
 class ServicesRepository @Inject constructor(private val apiServices: ApiServices) {
 
     //Login Validation
-    suspend fun login(usuario: String, contrasena: String): LoginResponse? =
-        apiServices.loginService(usuario = usuario, contrasena = contrasena)
+    suspend fun login(accion: String, usuario: String, contrasena: String): LoginResponse? = apiServices.loginService(accion = accion, usuario = usuario, contrasena = contrasena)
 
-    //Register User
-    suspend fun registerTutor(
-        nombre: String,
-        contrasena: String,
-        correo: String,
-        celular: String
-    ): RegisterResponse? = apiServices.regiterTutorService(
-        nombre = nombre,
-        contrasena = contrasena,
-        correo = correo,
-        celular = celular
-    )
-
-    suspend fun registerUser(nombre: String, codigoFamilia: String): RegisterResponse? =
-        apiServices.registerUserService(
-            nombre = nombre,
-            codigoFamilia = codigoFamilia
-        )
+    //Register
+    suspend fun registerTutor(accion: String, datos: Any): RegisterResponse? = apiServices.registerService(accion = accion, datos = datos)
 
     //Activiades
     suspend fun getTipoActividades(): TipoActividadesResponse? = apiServices.getTipoActividades()

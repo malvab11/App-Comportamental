@@ -1,6 +1,5 @@
-package com.example.behaveapp.ui.screens.init.login
+package com.example.behaveapp.ui.screens.init.register
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,61 +10,59 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.behaveapp.R
-import com.example.behaveapp.data.screensNavigation.screensNavigation
+import com.example.behaveapp.data.screensNavigation.ScreenNavigation
+import com.example.behaveapp.ui.data.RegisterState
+import com.example.behaveapp.ui.screens.commons.CommonAlertDialog
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.screens.commons.LoginTextField
-import com.example.behaveapp.ui.screens.viewModels.initViewModels.LoginViewModel
+import com.example.behaveapp.ui.screens.commons.commonToast
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
 import com.example.behaveapp.ui.theme.DarkOrange
+import com.example.behaveapp.ui.viewModels.initViewModels.RegisterViewModel
 
 @Composable
-fun LoginUserScreen(
+fun RegisterUserScreem(
     modifier: Modifier = Modifier,
     navController: NavController,
-    loginViewModel: LoginViewModel
+    registerViewModel: RegisterViewModel
 ) {
-
-    val enabled by loginViewModel.isEnabled.observeAsState(false)
+    val variables by registerViewModel.variables.collectAsState()
     val context = LocalContext.current
-    val registerUserResponse by loginViewModel.registerResponse.observeAsState()
-    val mensajeError by loginViewModel.mensajeError.observeAsState()
 
-    // Observa Login Exitoso
-    LaunchedEffect(registerUserResponse) {
-        registerUserResponse?.let {
-            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-            loginViewModel.clearMensajeError()
-            navController.navigate(screensNavigation.LoadingScreen.ruta) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+    LaunchedEffect(Unit) {
+        registerViewModel.resetValues()
+    }
+
+    LaunchedEffect(variables.registerResponse) {
+        val response = variables.registerResponse
+        if (response != null) {
+            commonToast(context, response.message)
+            if (response.status == "success") {
+                navController.navigate(ScreenNavigation.HomeScreen.ruta) {
+                    popUpTo(0)
+                }
+                registerViewModel.resetValues()
             }
         }
     }
-
-    // Observa Errores
-    LaunchedEffect(mensajeError) {
-        mensajeError?.takeIf { it.isNotBlank() }?.let {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            loginViewModel.clearMensajeError()
-        }
-    }
-
     Scaffold { innerPadding ->
         Column(
             modifier = modifier
@@ -81,30 +78,46 @@ fun LoginUserScreen(
                 ),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Header(navController = navController)
+            if (variables.isLoading) {
+                CommonAlertDialog(text = "Ingresando a la familia", fontSize = 16) { }
+            }
+
+            Header(
+                onReturn = {
+                    navController.popBackStack()
+                    registerViewModel.resetValues()
+                }
+            )
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LoginUserContent(loginViewModel = loginViewModel)
+                RegisterUserContent(
+                    variables = variables,
+                    onValueChange = { nombres, codigoFamilia ->
+                        registerViewModel.onValueChangeRegisterUser(
+                            nombre = nombres,
+                            codigoFamilia = codigoFamilia
+                        )
+                    })
             }
 
             CommonOutlinedButtons(
                 modifier = Modifier.fillMaxWidth(),
                 texto = "Unirme a la familia",
                 containterColor = DarkButtons,
-                enabled = enabled,
+                enabled = variables.isEnabled,
                 tamanoTexto = 16
             ) {
-                loginViewModel.validateRegisterUser()
+                registerViewModel.validateRegisterUsuario()
             }
         }
     }
 }
 
 @Composable
-private fun Header(navController: NavController) {
+private fun Header(onReturn: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start
@@ -115,16 +128,13 @@ private fun Header(navController: NavController) {
             contentDescription = "Retroceder",
             tint = DarkOrange
         ) {
-            navController.popBackStack()
+            onReturn()
         }
     }
 }
 
 @Composable
-private fun LoginUserContent(loginViewModel: LoginViewModel) {
-
-    val nombres by loginViewModel.nombres.observeAsState("")
-    val codigoFamilia by loginViewModel.codigoFamilia.observeAsState("")
+private fun RegisterUserContent(variables: RegisterState, onValueChange: (String, String) -> Unit) {
 
     CommonText(
         modifier = Modifier.fillMaxWidth(),
@@ -148,9 +158,19 @@ private fun LoginUserContent(loginViewModel: LoginViewModel) {
     )
 
     CommonSpacer(size = 12)
-    LoginTextField("Nombres y Apellidos",value = nombres, onValueChange = {loginViewModel.onValueChangeRegisterUser(nombre = it, codigoFamilia = codigoFamilia)})
 
-    CommonSpacer(size = 12)
-    LoginTextField("Código de Invitación",value = codigoFamilia, onValueChange = {loginViewModel.onValueChangeRegisterUser(nombre = nombres, codigoFamilia = it)})
+    LoginTextField(
+        "Nombres y Apellidos",
+        value = variables.nombres,
+        onValueChange = {
+            onValueChange(it, variables.codigoFamilia)
+        })
+    LoginTextField(
+        "Código de Invitación",
+        value = variables.codigoFamilia,
+        keyboardType = KeyboardType.Number,
+        onValueChange = {
+            onValueChange(variables.nombres, it)
+        })
 }
 

@@ -26,12 +26,12 @@ import androidx.navigation.NavHostController
 import com.example.behaveapp.R
 import com.example.behaveapp.data.models.Actividades
 import com.example.behaveapp.data.models.TipoActividades
-import com.example.behaveapp.data.screensNavigation.screensNavigation
+import com.example.behaveapp.data.screensNavigation.ScreenNavigation
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonTaskCard
 import com.example.behaveapp.ui.screens.commons.CommonText
-import com.example.behaveapp.ui.screens.viewModels.HomeViewModel
+import com.example.behaveapp.ui.viewModels.HomeViewModel
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
@@ -102,7 +102,11 @@ private fun ActivitiesContent(
 @Composable
 private fun FAB(modifier: Modifier = Modifier, navController: NavHostController) {
     FloatingActionButton(
-        onClick = { /* Acción */ },
+        onClick = {
+            navController.navigate(
+                ScreenNavigation.CreateActivityScreen.createRuta(idActividad = 0)
+            )
+        },
         modifier = modifier,
         containerColor = DarkButtons
     ) {
@@ -110,10 +114,7 @@ private fun FAB(modifier: Modifier = Modifier, navController: NavHostController)
             size = 14,
             icon = R.drawable.ic_plus,
             contentDescription = "Añadir actividad",
-            tint = Color.White,
-            onClick = {navController.navigate(
-                screensNavigation.CreateActivityScreen.createRuta(idActividad = 0)
-            )}
+            tint = Color.White
         )
     }
 }
@@ -157,7 +158,7 @@ private fun ActivitiesGrouped(
                     puntaje = actividad.puntaje,
                     modifier = Modifier.clickable {
                         navController.navigate(
-                            screensNavigation.CreateActivityScreen.createRuta(idActividad = actividad.idActividad ?: 0)
+                            ScreenNavigation.CreateActivityScreen.createRuta(idActividad = actividad.idActividad ?: 0)
                         )
                         homeViewModel.activityFilter(actividad.idActividad ?: 0)
                     }

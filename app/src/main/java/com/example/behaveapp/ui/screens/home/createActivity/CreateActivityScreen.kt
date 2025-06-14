@@ -40,7 +40,7 @@ import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.screens.commons.LoginTextField
-import com.example.behaveapp.ui.screens.viewModels.HomeViewModel
+import com.example.behaveapp.ui.viewModels.HomeViewModel
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons

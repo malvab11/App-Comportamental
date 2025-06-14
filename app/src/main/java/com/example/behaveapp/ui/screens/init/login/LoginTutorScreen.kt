@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -19,17 +20,21 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.behaveapp.R
-import com.example.behaveapp.data.screensNavigation.screensNavigation
+import com.example.behaveapp.data.screensNavigation.ScreenNavigation
+import com.example.behaveapp.ui.screens.commons.CommonAlertDialog
+import com.example.behaveapp.ui.screens.commons.CommonCircularProgress
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.screens.commons.LoginTextField
-import com.example.behaveapp.ui.screens.viewModels.initViewModels.LoginViewModel
+import com.example.behaveapp.ui.screens.commons.commonToast
+import com.example.behaveapp.ui.viewModels.initViewModels.LoginViewModel
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
@@ -41,6 +46,26 @@ fun LoginTutorScreen(
     navController: NavController,
     loginViewModel: LoginViewModel
 ) {
+    val variables by loginViewModel.variables.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        loginViewModel.resetValues()
+    }
+
+    LaunchedEffect(variables.loginResponse) {
+        val response = variables.loginResponse
+        if (response != null){
+            commonToast(context,response.message)
+            if (response.status == "success"){
+                navController.navigate(ScreenNavigation.HomeScreen.ruta){
+                    popUpTo(0)
+                }
+                loginViewModel.resetValues()
+            }
+        }
+    }
+
     Scaffold { innerPadding ->
         Column(
             modifier = modifier
@@ -65,48 +90,42 @@ fun LoginTutorScreen(
                     icon = R.drawable.ic_arrow_back,
                     contentDescription = "Retroceder",
                     tint = DarkOrange
-                ) { navController.popBackStack() }
+                ) {
+                    navController.popBackStack()
+                    loginViewModel.resetValues()
+                }
+            }
+            if (variables.isLoading) {
+                CommonAlertDialog(text = "Validando Usuario", fontSize = 16) { }
             }
             Column(
-                modifier = modifier
-                    .fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                LoginContent(navController = navController, loginViewModel = loginViewModel)
+                LoginContent(
+                    navController = navController,
+                    loginViewModel = loginViewModel,
+                    usuario = variables.usuario,
+                    contrasena = variables.contrasena,
+                    isShown = variables.isShown,
+                    enabled = variables.isEnabled
+                )
             }
+
         }
     }
 }
 
 @Composable
-private fun LoginContent(navController: NavController, loginViewModel: LoginViewModel) {
-    val usuario by loginViewModel.usuario.observeAsState("")
-    val contrasena by loginViewModel.contrasena.observeAsState("")
-    val enabled by loginViewModel.isEnabled.observeAsState(false)
-    val isShown by loginViewModel.isShown.observeAsState(false)
-    val context = LocalContext.current
-    val loginResponse by loginViewModel.loginResponse.observeAsState()
-    val mensajeError by loginViewModel.mensajeError.observeAsState()
-
-    // Observa Login Exitoso
-    LaunchedEffect(loginResponse) {
-        loginResponse?.let {
-            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-            loginViewModel.clearMensajeError()
-            navController.navigate(screensNavigation.LoadingScreen.ruta) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-            }
-        }
-    }
-
-    // Observa Errores
-    LaunchedEffect(mensajeError) {
-        mensajeError?.takeIf { it.isNotBlank() }?.let {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            loginViewModel.clearMensajeError()
-        }
-    }
+private fun LoginContent(
+    navController: NavController,
+    loginViewModel: LoginViewModel,
+    usuario: String,
+    contrasena: String,
+    isShown: Boolean,
+    enabled: Boolean
+) {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CommonSpacer(size = 12)
@@ -123,18 +142,15 @@ private fun LoginContent(navController: NavController, loginViewModel: LoginView
             value = usuario,
             onValueChange = { loginViewModel.onValueChange(it, contrasena) }
         )
-
-        CommonSpacer(size = 12)
         LoginTextField(
             placeholder = "Contraseña",
             isPassword = true,
             value = contrasena,
             isShown = isShown,
+            keyboardType = KeyboardType.Password,
             onClick = { loginViewModel.showPassword() },
             onValueChange = { loginViewModel.onValueChange(usuario, it) }
         )
-
-        CommonSpacer(size = 12)
         CommonText(
             modifier = Modifier.fillMaxWidth(),
             text = "Olvidaste Contraseña",
@@ -162,7 +178,7 @@ private fun LoginContent(navController: NavController, loginViewModel: LoginView
             containterColor = DarkOrange,
             tamanoTexto = 16
         ) {
-            navController.navigate(screensNavigation.RegisterTutorScreen.ruta)
+            navController.navigate(ScreenNavigation.RegisterTutorScreen.ruta)
         }
 
         CommonSpacer(size = 12)
@@ -171,7 +187,9 @@ private fun LoginContent(navController: NavController, loginViewModel: LoginView
 
         Row(modifier = Modifier.fillMaxWidth()) {
             CommonOutlinedButtons(
-                modifier = Modifier.weight(1f).padding(end = 6.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 6.dp),
                 texto = "Google",
                 containterColor = Color.White,
                 colorTexto = Color.Black,
@@ -180,7 +198,9 @@ private fun LoginContent(navController: NavController, loginViewModel: LoginView
             ) {}
 
             CommonOutlinedButtons(
-                modifier = Modifier.weight(1f).padding(start = 6.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 6.dp),
                 texto = "Facebook",
                 containterColor = Color(0xFF2B57E8),
                 icon = R.drawable.ic_facebook,

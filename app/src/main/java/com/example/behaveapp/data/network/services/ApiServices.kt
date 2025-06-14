@@ -21,120 +21,47 @@ import javax.inject.Inject
 
 class ApiServices @Inject constructor(private val services: ApiClient) {
 
-    suspend fun loginService(usuario: String, contrasena: String): LoginResponse? =
-        withContext(Dispatchers.IO) {
-            return@withContext try {
-                val request = LoginRequest(usuario = usuario, contrasena = contrasena)
-                val response = services.login(request)
-                val body = response.body()
-                val error = response.errorBody()
+    suspend fun loginService(accion: String, usuario: String,contrasena: String): LoginResponse? = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = services.login(
+                LoginRequest(accion = accion, usuario = usuario, contrasena = contrasena)
+            )
 
-                if (!response.isSuccessful) {
-                    Log.e(
-                        "LoginService",
-                        "HTTP ${response.code()}: ${error?.string()}"
-                    )
-                    return@withContext null
-                }
-
-                if (body?.status != "success") {
-                    Log.e("LoginService", "Logic error: ${body?.message}")
-                    if (body != null) {
-                        return@withContext LoginResponse(
-                            status = body.status,
-                            message = body.message
-                        )
-                    }
-                }
-
-                body
-
-            } catch (e: Exception) {
-                Log.e("LoginService", "Exception: ${e.localizedMessage}", e)
-                null
+            if (!response.isSuccessful) {
+                val error = response.errorBody()?.string().orEmpty()
+                Log.e("LoginService", "HTTP ${response.code()}: $error")
+                return@runCatching null
             }
+
+            response.body()
+        }.getOrElse { e ->
+            Log.e("LoginService", "Exception: ${e.localizedMessage}", e)
+            null
         }
+    }
 
-    suspend fun regiterTutorService(
-        nombre: String,
-        contrasena: String,
-        correo: String,
-        celular: String
-    ): RegisterResponse? =
-        withContext(Dispatchers.IO) {
-            return@withContext try {
-                val request = RegisterTutorRequest(
-                    nombre = nombre,
-                    contrasena = contrasena,
-                    correo = correo,
-                    celular = celular
-                )
-                val response = services.registerTutor(request)
-                val body = response.body()
-                val error = response.errorBody()
-
-                if (!response.isSuccessful) {
-                    Log.e(
-                        "RegisterService",
-                        "HTTP ${response.code()}: ${error?.string()}"
-                    )
-                    return@withContext null
-                }
-
-                if (body?.status != "success") {
-                    Log.e("RegisterService", "Logic error: ${body?.message}")
-                    if (body != null) {
-                        return@withContext RegisterResponse(
-                            status = body.status,
-                            message = body.message
-                        )
-                    }
-                }
-
-                body
-
-            } catch (e: Exception) {
-                Log.e("RegisterService", "Exception: ${e.localizedMessage}", e)
-                null
+    suspend fun registerService(accion: String, datos: Any): RegisterResponse? = withContext(Dispatchers.IO){
+        runCatching {
+            val response = when(accion){
+                "registroTutor" -> services.registerTutor(datos as RegisterTutorRequest)
+                "registroAlumno" -> services.registerUser(datos as RegisterUserRequest)
+                else -> null
             }
-        }
 
-    suspend fun registerUserService(nombre: String, codigoFamilia: String): RegisterResponse? =
-        withContext(Dispatchers.IO) {
-            return@withContext try {
-                val request = RegisterUserRequest(
-                    nombre = nombre,
-                    codigoFamilia = codigoFamilia,
-                )
-                val response = services.registerUser(request)
-                val body = response.body()
-                val error = response.errorBody()
-
-                if (!response.isSuccessful) {
-                    Log.e(
-                        "RegisterService",
-                        "HTTP ${response.code()}: ${error?.string()}"
-                    )
-                    return@withContext null
-                }
-
-                if (body?.status != "success") {
-                    Log.e("RegisterService", "Logic error: ${body?.message}")
-                    if (body != null) {
-                        return@withContext RegisterResponse(
-                            status = body.status,
-                            message = body.message
-                        )
-                    }
-                }
-
-                body
-
-            } catch (e: Exception) {
-                Log.e("RegisterService", "Exception: ${e.localizedMessage}", e)
-                null
+            if (response == null || !response.isSuccessful){
+                val code = response?.code() ?: 0
+                val body = response?.errorBody()?.string().orEmpty()
+                Log.e("RegisterService", "HTTP $code: $body")
+                return@runCatching null
             }
+
+            response.body()
+
+        }.getOrElse { e ->
+            Log.e("LoginService", "Exception: ${e.localizedMessage}", e)
+            null
         }
+    }
 
     suspend fun getTipoActividades(): TipoActividadesResponse? =
         withContext(Dispatchers.IO) {

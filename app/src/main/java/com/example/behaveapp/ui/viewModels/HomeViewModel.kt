@@ -1,4 +1,4 @@
-package com.example.behaveapp.ui.screens.viewModels
+package com.example.behaveapp.ui.viewModels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
