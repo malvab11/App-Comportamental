@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "actividad")
 data class ActividadEntity(
-    @PrimaryKey val idActividad: Int,
+    @PrimaryKey(autoGenerate = false) val idActividad: Int,
     val tipoActividad: Int?,
     val tutor: Int?,
     val titulo: String,
@@ -14,3 +14,5 @@ data class ActividadEntity(
     val eliminado: Int,
     val isSelected: Boolean
 )
+
+

@@ -3,14 +3,15 @@ package com.example.behaveapp.data.network.services
 import android.util.Log
 import com.example.behaveapp.data.models.Actividades
 import com.example.behaveapp.data.models.ActividadesRequest
-import com.example.behaveapp.data.models.ActividadesResponse
+import com.example.behaveapp.data.models.ApiResponse
 import com.example.behaveapp.data.models.CreateRequest
-import com.example.behaveapp.data.models.CreateResponse
+import com.example.behaveapp.data.models.GenericResponse
 import com.example.behaveapp.data.models.LoginRequest
 import com.example.behaveapp.data.models.LoginResponse
-import com.example.behaveapp.data.models.RegisterResponse
 import com.example.behaveapp.data.models.RegisterTutorRequest
 import com.example.behaveapp.data.models.RegisterUserRequest
+import com.example.behaveapp.data.models.ReporteData
+import com.example.behaveapp.data.models.ReporteRequest
 import com.example.behaveapp.data.models.TipoActividades
 import com.example.behaveapp.data.network.ApiClient
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,11 @@ import javax.inject.Inject
 
 class ApiServices @Inject constructor(private val services: ApiClient) {
 
-    suspend fun loginService(accion: String, usuario: String, contrasena: String): LoginResponse? =
+    suspend fun loginService(
+        accion: String,
+        usuario: String,
+        contrasena: String
+    ): LoginResponse? =
         withContext(Dispatchers.IO) {
             runCatching {
                 val response = services.login(
@@ -40,7 +45,7 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
             }
         }
 
-    suspend fun registerService(accion: String, datos: Any): RegisterResponse? =
+    suspend fun registerService(accion: String, datos: Any): LoginResponse? =
         withContext(Dispatchers.IO) {
             runCatching {
                 val response = when (accion) {
@@ -64,10 +69,15 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
             }
         }
 
-    suspend fun getTipoActividades(accion: String, idUsuario: Int): ActividadesResponse<TipoActividades>? =
+    suspend fun getTipoActividades(accion: String, idUsuario: Int): ApiResponse<List<TipoActividades>>? =
         withContext(Dispatchers.IO) {
             runCatching {
-                val response = services.getTipoActividades(ActividadesRequest(accion = accion, idUsuario = idUsuario))
+                val response = services.getTipoActividades(
+                    ActividadesRequest(
+                        accion = accion,
+                        idUsuario = idUsuario
+                    )
+                )
 
                 if (!response.isSuccessful) {
                     val error = response.errorBody()?.string().orEmpty()
@@ -82,10 +92,15 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
             }
         }
 
-    suspend fun getActividadesList(accion: String, idUsuario: Int): ActividadesResponse<Actividades>? =
+    suspend fun getActividadesList(accion: String, idUsuario: Int): ApiResponse<List<Actividades>>? =
         withContext(Dispatchers.IO) {
             runCatching {
-                val response = services.getActividadesList(ActividadesRequest(accion = accion, idUsuario = idUsuario))
+                val response = services.getActividadesList(
+                    ActividadesRequest(
+                        accion = accion,
+                        idUsuario = idUsuario
+                    )
+                )
 
                 if (!response.isSuccessful) {
                     val error = response.errorBody()?.string().orEmpty()
@@ -105,7 +120,7 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
         tutor: Int,
         titulo: String,
         puntaje: Int
-    ): CreateResponse? =
+    ): GenericResponse? =
         withContext(Dispatchers.IO) {
             return@withContext try {
                 val request = CreateRequest(
@@ -132,7 +147,7 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
                 if (body?.status != "success") {
                     Log.e("SaveActivitiesService", "Logic error: ${body?.message}")
                     if (body != null) {
-                        return@withContext CreateResponse(
+                        return@withContext GenericResponse(
                             status = body.status,
                             message = body.message
                         )
@@ -154,7 +169,7 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
         titulo: String,
         puntaje: Int,
         eliminado: Int
-    ): CreateResponse? =
+    ): GenericResponse? =
         withContext(Dispatchers.IO) {
             return@withContext try {
                 val request = CreateRequest(
@@ -183,7 +198,7 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
                 if (body?.status != "success") {
                     Log.e("EditActividadService", "Logic error: ${body?.message}")
                     if (body != null) {
-                        return@withContext CreateResponse(
+                        return@withContext GenericResponse(
                             status = body.status,
                             message = body.message
                         )
@@ -198,10 +213,15 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
             }
         }
 
-    suspend fun deleteActividad(accion: String,idActividad: Int): CreateResponse? =
+    suspend fun deleteActividad(accion: String, idActividad: Int): GenericResponse? =
         withContext(Dispatchers.IO) {
             runCatching {
-                val response = services.deleteActividad(CreateRequest(accion = accion, idActividad = idActividad))
+                val response = services.deleteActividad(
+                    CreateRequest(
+                        accion = accion,
+                        idActividad = idActividad
+                    )
+                )
 
                 if (!response.isSuccessful) {
                     val error = response.errorBody()?.string().orEmpty()
@@ -212,6 +232,36 @@ class ApiServices @Inject constructor(private val services: ApiClient) {
                 response.body()
             }.getOrElse { e ->
                 Log.e("deleteActividadService", "Exception: ${e.localizedMessage}", e)
+                null
+            }
+        }
+
+    suspend fun getReporte(
+        accion: String,
+        idUsuario: Int,
+        anio: String,
+        mes: String
+    ): ApiResponse<ReporteData>? =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val response = services.getInfoReporte(
+                    ReporteRequest(
+                        accion = accion,
+                        idUsuario = idUsuario,
+                        anio = anio,
+                        mes = mes
+                    )
+                )
+
+                if (!response.isSuccessful) {
+                    val error = response.errorBody()?.string().orEmpty()
+                    Log.e("getInfoService", "HTTP ${response.code()}: $error")
+                    return@runCatching null
+                }
+                response.body()
+
+            }.getOrElse { e ->
+                Log.e("getInfoService", "Exception: ${e.localizedMessage}", e)
                 null
             }
         }

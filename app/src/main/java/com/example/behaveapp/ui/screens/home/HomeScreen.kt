@@ -9,9 +9,10 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
@@ -19,43 +20,34 @@ import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.theme.DarkOrange
 import com.example.behaveapp.ui.theme.DarkUnselectedItems
 import com.example.behaveapp.ui.viewModels.homeViewModels.ActivityViewModel
-import com.example.behaveapp.ui.viewModels.homeViewModels.HomeViewModel
+import com.example.behaveapp.ui.viewModels.homeViewModels.ReporteViewModel
+import com.example.behaveapp.ui.viewModels.initViewModels.LoadingViewModel
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    homeViewModel: HomeViewModel,
     activityViewModel: ActivityViewModel,
-    idUsuario: Int = 1,
-    tipoUsuario: Int = 1
+    reporteViewModel: ReporteViewModel
 ) {
 
-    val variables by homeViewModel.variables.collectAsState()
-
-    LaunchedEffect(Unit) {
-        activityViewModel.getAll(idUsuario = idUsuario)
-    }
+    var pantalla by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = modifier,
         bottomBar = {
-            MyBottomBar(selectedScreen = variables.selectedScreen) {
-                homeViewModel.selectScreen(
-                    it
-                )
+            MyBottomBar(selectedScreen = pantalla) {
+                pantalla = it
             }
         }
     ) { padding ->
 
-        when (variables.selectedScreen) {
-            0 -> ReportScreen(padding = padding, isLoadingData = variables.isLoading)
+        when (pantalla) {
+            0 -> ReportScreen(padding = padding, reporteViewModel = reporteViewModel)
             1 -> ActivitiesScreen(
                 padding = padding,
                 navController = navController,
-                viewModel = activityViewModel,
-                idUsuario = idUsuario,
-                tipoUsuario = tipoUsuario
+                viewModel = activityViewModel
             )
 
             2 -> ProfileScreen(padding = padding)

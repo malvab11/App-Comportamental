@@ -48,17 +48,19 @@ fun CreateActivityScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     createViewModel: CreateViewModel,
+    idActividad: String? = "0",
 ) {
 
     val variables by createViewModel.variables.collectAsState()
-    val idUsuario = navController.previousBackStackEntry?.savedStateHandle?.get<Int>("idUsuario")
 
     LaunchedEffect(Unit) {
-        val tipoActividades =
-            navController.previousBackStackEntry?.savedStateHandle?.get<List<TipoActividades>>("tipoActividades")
-        val actividad =
-            navController.previousBackStackEntry?.savedStateHandle?.get<Actividades>("actividad")
-        createViewModel.setValues(tipoActividades = tipoActividades, actividad = actividad)
+        createViewModel.getTipoActividades()
+        createViewModel.getUser()
+        if (idActividad!! != "0") {
+            createViewModel.getActividadById(idActividad.toInt())
+        }else{
+            createViewModel.clearValues()
+        }
     }
 
     Scaffold { innerPadding ->
@@ -143,11 +145,11 @@ fun CreateActivityScreen(
                 enabled = variables.isEnabled,
                 tamanoTexto = 16
             ) {
-                if (variables.actividad != null) {
+                if (idActividad!! != "0" ){
                     createViewModel.editActivities()
                     navController.popBackStack()
                 } else {
-                    createViewModel.saveActivities(idUsuario = idUsuario!!)
+                    createViewModel.saveActivities()
                     navController.popBackStack()
                 }
             }

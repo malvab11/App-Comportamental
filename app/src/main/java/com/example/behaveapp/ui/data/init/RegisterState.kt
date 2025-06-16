@@ -1,6 +1,6 @@
 package com.example.behaveapp.ui.data.init
 
-import com.example.behaveapp.data.models.RegisterResponse
+import com.example.behaveapp.data.models.LoginResponse
 
 data class RegisterState(
     val correo: String = "",
@@ -13,5 +13,5 @@ data class RegisterState(
     val isShown: Boolean = false,
     val isLoading: Boolean = false,
     val errorContrasena: String? = null,
-    val registerResponse: RegisterResponse? = null
+    val registerResponse: LoginResponse? = null
 )

@@ -8,12 +8,12 @@ import com.example.behaveapp.data.room.entity.UsuarioEntity
 
 @Dao
 interface UsuarioDao {
-    @Query("SELECT * FROM usuario LIMIT 1")
-    suspend fun getUsuario(): UsuarioEntity?
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(usuario: UsuarioEntity)
 
-    @Query("DELETE FROM usuario")
-    suspend fun clear()
+    @Query("SELECT * FROM usuarios LIMIT 1")
+    suspend fun getUsuario(): UsuarioEntity?
+
+    @Query("DELETE FROM usuarios")
+    suspend fun deleteAll()
 }

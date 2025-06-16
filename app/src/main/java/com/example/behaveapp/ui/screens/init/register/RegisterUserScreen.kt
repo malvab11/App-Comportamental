@@ -57,10 +57,7 @@ fun RegisterUserScreem(
             commonToast(context, response.message)
             if (response.status == "success") {
                 navController.navigate(
-                    ScreenNavigation.HomeScreen.crearRuta(
-                        idUsuario = variables.registerResponse?.idUsuario ?: 0,
-                        tipoUsuario = variables.registerResponse?.tipoUsuario ?: 0
-                    )
+                    ScreenNavigation.LoadingScreen.ruta
                 ) {
                     popUpTo(0)
                 }

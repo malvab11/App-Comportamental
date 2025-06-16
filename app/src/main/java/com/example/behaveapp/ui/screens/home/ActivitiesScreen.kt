@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,6 +31,8 @@ import androidx.navigation.NavHostController
 import com.example.behaveapp.R
 import com.example.behaveapp.data.models.Actividades
 import com.example.behaveapp.data.models.TipoActividades
+import com.example.behaveapp.data.room.entity.ActividadEntity
+import com.example.behaveapp.data.room.entity.TipoActividadEntity
 import com.example.behaveapp.data.screensNavigation.ScreenNavigation
 import com.example.behaveapp.ui.screens.commons.CommonAlertDialog
 import com.example.behaveapp.ui.screens.commons.CommonCircularProgress
@@ -48,11 +51,15 @@ fun ActivitiesScreen(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
     navController: NavHostController,
-    viewModel: ActivityViewModel,
-    idUsuario: Int,
-    tipoUsuario: Int,
+    viewModel: ActivityViewModel
 ) {
     val variables by viewModel.variables.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getActividadesDB()
+        viewModel.getTipoActividadDB()
+        viewModel.getUserDB()
+    }
 
     Box(
         modifier = modifier
@@ -81,17 +88,15 @@ fun ActivitiesScreen(
                     fontSize = 12,
                     showButtons = true,
                     onConfirm = {
-                        viewModel.deleteActivity(variables.idActividadSeleccionada)
-                        viewModel.getActividadesList(idUsuario = idUsuario)
+                        viewModel.deleteAndRefresh(variables.idActividadSeleccionada)
                         viewModel.showDialog()
                     },
                     onDismiss = { viewModel.showDialog() })
             }
             Column(modifier = Modifier.fillMaxSize()) {
                 ActivitiesContent(
-                    actividades = variables.actividades?.data,
-                    tipoActividades = variables.tipoActividades?.data,
-                    idUsuario = idUsuario,
+                    actividades = variables.actividadesDao,
+                    tipoActividades = variables.tipoActividadesDao,
                     searchQuery = variables.searchQuery,
                     navController = navController,
                     onActividadSelected = { viewModel.getActividadId(it) },
@@ -104,9 +109,7 @@ fun ActivitiesScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-            navController = navController,
-            idUsuario = idUsuario,
-            tipoActividades = variables.tipoActividades?.data
+            navController = navController
         )
     }
 }
@@ -114,9 +117,8 @@ fun ActivitiesScreen(
 
 @Composable
 private fun ActivitiesContent(
-    actividades: List<Actividades>?,
-    tipoActividades: List<TipoActividades>?,
-    idUsuario: Int,
+    actividades: List<ActividadEntity>?,
+    tipoActividades: List<TipoActividadEntity>?,
     searchQuery: String,
     navController: NavHostController,
     onActividadSelected: (Int) -> Unit,
@@ -132,7 +134,6 @@ private fun ActivitiesContent(
     ActivitiesGrouped(
         actividades = actividadesFiltradas,
         tipoActividades = tipoActividades,
-        idUsuario = idUsuario,
         navController = navController,
         onActividadSelected = { onActividadSelected(it) },
         onClick = { onClick() }
@@ -143,9 +144,7 @@ private fun ActivitiesContent(
 @Composable
 private fun FAB(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
-    idUsuario: Int,
-    tipoActividades: List<TipoActividades>?,
+    navController: NavHostController
 ) {
     FloatingActionButton(
         onClick = {},
@@ -158,14 +157,8 @@ private fun FAB(
             contentDescription = "Añadir actividad",
             tint = Color.White,
             onClick = {
-                val navBackStackEntry = navController.currentBackStackEntry
-                navBackStackEntry?.savedStateHandle?.set("idUsuario", idUsuario)
-                navBackStackEntry?.savedStateHandle?.set(
-                    "tipoActividades",
-                    tipoActividades
-                )
                 navController.navigate(
-                    ScreenNavigation.CreateActivityScreen.ruta
+                    ScreenNavigation.CreateActivityScreen.crearRuta("0")
                 )
             }
         )
@@ -175,9 +168,8 @@ private fun FAB(
 
 @Composable
 private fun ActivitiesGrouped(
-    actividades: List<Actividades>?,
-    tipoActividades: List<TipoActividades>?,
-    idUsuario: Int,
+    actividades: List<ActividadEntity>?,
+    tipoActividades: List<TipoActividadEntity>?,
     navController: NavHostController,
     onActividadSelected: (Int) -> Unit,
     onClick: () -> Unit
@@ -214,20 +206,12 @@ private fun ActivitiesGrouped(
                     modifier = Modifier.pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {
-                                val navBackStackEntry = navController.currentBackStackEntry
-
-                                navBackStackEntry?.savedStateHandle?.set("idUsuario", idUsuario)
-                                navBackStackEntry?.savedStateHandle?.set(
-                                    "tipoActividades",
-                                    tipoActividades
-                                )
-                                navBackStackEntry?.savedStateHandle?.set("actividad", actividad)
                                 navController.navigate(
-                                    ScreenNavigation.CreateActivityScreen.ruta
+                                    ScreenNavigation.CreateActivityScreen.crearRuta(actividad.idActividad.toString())
                                 )
                             },
                             onLongPress = {
-                                onActividadSelected(actividad.idActividad!!)
+                                onActividadSelected(actividad.idActividad)
                                 onClick()
                             }
                         )

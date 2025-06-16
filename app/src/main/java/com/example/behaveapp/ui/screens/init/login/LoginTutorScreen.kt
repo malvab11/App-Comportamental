@@ -1,6 +1,5 @@
 package com.example.behaveapp.ui.screens.init.login
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,18 +25,17 @@ import androidx.navigation.NavController
 import com.example.behaveapp.R
 import com.example.behaveapp.data.screensNavigation.ScreenNavigation
 import com.example.behaveapp.ui.screens.commons.CommonAlertDialog
-import com.example.behaveapp.ui.screens.commons.CommonCircularProgress
 import com.example.behaveapp.ui.screens.commons.CommonIcon
 import com.example.behaveapp.ui.screens.commons.CommonOutlinedButtons
 import com.example.behaveapp.ui.screens.commons.CommonSpacer
 import com.example.behaveapp.ui.screens.commons.CommonText
 import com.example.behaveapp.ui.screens.commons.LoginTextField
 import com.example.behaveapp.ui.screens.commons.commonToast
-import com.example.behaveapp.ui.viewModels.initViewModels.LoginViewModel
 import com.example.behaveapp.ui.theme.BlackEndBackground
 import com.example.behaveapp.ui.theme.BlackStartBackground
 import com.example.behaveapp.ui.theme.DarkButtons
 import com.example.behaveapp.ui.theme.DarkOrange
+import com.example.behaveapp.ui.viewModels.initViewModels.LoginViewModel
 
 @Composable
 fun LoginTutorScreen(
@@ -55,10 +52,12 @@ fun LoginTutorScreen(
 
     LaunchedEffect(variables.loginResponse) {
         val response = variables.loginResponse
-        if (response != null){
-            commonToast(context,response.message)
-            if (response.status == "success"){
-                navController.navigate(ScreenNavigation.HomeScreen.crearRuta(idUsuario = variables.loginResponse?.idUsuario ?: 0, tipoUsuario = variables.loginResponse?.tipoUsuario ?: 0)){
+        if (response != null) {
+            commonToast(context, response.message)
+            if (response.status == "success") {
+                navController.navigate(
+                    ScreenNavigation.LoadingScreen.ruta
+                ) {
                     popUpTo(0)
                 }
                 loginViewModel.resetValues()

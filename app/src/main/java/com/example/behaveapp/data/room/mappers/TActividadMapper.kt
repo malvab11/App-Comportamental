@@ -4,14 +4,14 @@ import com.example.behaveapp.data.models.TipoActividades
 import com.example.behaveapp.data.room.entity.TipoActividadEntity
 
 
-fun TipoActividades.toEntity(): TipoActividadEntity = TipoActividadEntity(
-    id = id,
+fun TipoActividades.toEntity() = TipoActividadEntity(
+    id = idTipoActividad,
     descripcion = descripcion,
-    detalle = detalle.orEmpty()
+    detalle = detalle
 )
 
-fun TipoActividadEntity.toModel(): TipoActividades = TipoActividades(
-    id = id,
+fun TipoActividadEntity.toModel() = TipoActividades(
+    idTipoActividad = id,
     descripcion = descripcion,
     detalle = detalle
 )

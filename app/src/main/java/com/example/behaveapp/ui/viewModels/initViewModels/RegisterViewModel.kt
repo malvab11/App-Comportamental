@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.behaveapp.data.models.RegisterTutorRequest
 import com.example.behaveapp.data.models.RegisterUserRequest
-import com.example.behaveapp.domain.registerUseCases.RegisterUseCases
+import com.example.behaveapp.domain.loginUseCase.LoginUseCase
 import com.example.behaveapp.ui.data.init.RegisterState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor(private val registerUseCase: RegisterUseCases) :
+class RegisterViewModel @Inject constructor(private val registerUseCase: LoginUseCase) :
     ViewModel() {
 
     private val _variables = MutableStateFlow(RegisterState())

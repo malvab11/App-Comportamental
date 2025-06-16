@@ -60,6 +60,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //Calendario
+    implementation ("com.jakewharton.threetenabp:threetenabp:1.4.5")
+
     //Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -68,7 +71,7 @@ dependencies {
     //Dagger Hilt
     implementation(libs.hilt.android.v250)
     implementation(libs.androidx.runtime.livedata)
-    kapt(libs.hilt.android.compiler.v250)
+    ksp("com.google.dagger:hilt-compiler:2.50")
 
     //Navigation
     implementation(libs.androidx.navigation.compose)

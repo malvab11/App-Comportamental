@@ -3,8 +3,10 @@ package com.example.behaveapp.data.room.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "usuario")
+@Entity(tableName = "usuarios")
 data class UsuarioEntity(
-    @PrimaryKey val idUsuario: Int,
-    val tipoUsuario: Int
+    @PrimaryKey(autoGenerate = false) val idUsuario: Int,
+    val nombre: String?,
+    val codigoFamilia: String?,
+    val tipoUsuario: Int?
 )
